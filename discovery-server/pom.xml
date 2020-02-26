@@ -12,7 +12,7 @@
 	<artifactId>discovery-server</artifactId>
 	<version>1.0</version>
 	<name>discovery-server</name>
-	<description>Serveur de configuration</description>
+	<description>Serveur de découverte et d'enregistrement des instances</description>
 
 	<properties>
 		<java.version>13</java.version>
