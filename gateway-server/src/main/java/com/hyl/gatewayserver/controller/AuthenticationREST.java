@@ -8,8 +8,6 @@ import com.hyl.gatewayserver.model.SignInRequest;
 import com.hyl.gatewayserver.model.SignUpRequest;
 import com.hyl.gatewayserver.service.UserService;
 import com.hyl.gatewayserver.utils.JWTUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,9 +19,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 public class AuthenticationREST {
-
-    Logger logger = LoggerFactory.getLogger(AuthenticationREST.class);
-
+    
     private final JWTUtil jwtUtil;
 
     private final PBKDF2Encoder passwordEncoder;
@@ -73,6 +69,5 @@ public class AuthenticationREST {
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new CustomInternalServerErrorException(exception.getMessage()));
         }
-
     }
 }
