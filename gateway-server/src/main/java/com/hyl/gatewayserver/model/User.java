@@ -23,13 +23,17 @@ public class User implements UserDetails {
 
     public User() {}
 
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
     public User(String username, String password, Boolean enabled, List<Role> roles) {
         this.username = username;
         this.password = password;
         this.enabled = enabled;
         this.roles = roles;
     }
-
 
     public Boolean getEnabled() {
         return enabled;

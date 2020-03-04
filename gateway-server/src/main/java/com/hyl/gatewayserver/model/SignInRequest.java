@@ -1,14 +1,14 @@
 package com.hyl.gatewayserver.model;
 
-public class  AuthRequest {
+public class SignInRequest {
 
     private String email;
     private String password;
 
 
-    public AuthRequest() {
+    public SignInRequest() {
     }
-    public AuthRequest(String email, String password) {
+    public SignInRequest(String email, String password) {
         this.email = email;
         this.password = password;
     }

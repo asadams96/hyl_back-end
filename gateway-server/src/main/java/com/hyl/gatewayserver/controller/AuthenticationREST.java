@@ -1,16 +1,22 @@
 package com.hyl.gatewayserver.controller;
 
-import com.hyl.gatewayserver.utils.JWTUtil;
 import com.hyl.gatewayserver.encoder.PBKDF2Encoder;
-import com.hyl.gatewayserver.model.AuthRequest;
+import com.hyl.gatewayserver.exception.CustomBadRequestException;
+import com.hyl.gatewayserver.exception.CustomInternalServerErrorException;
 import com.hyl.gatewayserver.model.AuthResponse;
+import com.hyl.gatewayserver.model.SignInRequest;
+import com.hyl.gatewayserver.model.SignUpRequest;
 import com.hyl.gatewayserver.service.UserService;
+import com.hyl.gatewayserver.utils.JWTUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.reactive.function.client.WebClientResponseException.BadRequest;
+import org.springframework.web.reactive.function.client.WebClientResponseException.InternalServerError;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -22,22 +28,22 @@ public class AuthenticationREST {
 
     private final PBKDF2Encoder passwordEncoder;
 
-    private final UserService userRepository;
+    private final UserService userService;
 
     @Autowired
-    public AuthenticationREST(JWTUtil jwtUtil, PBKDF2Encoder passwordEncoder, UserService userRepository) {
+    public AuthenticationREST(JWTUtil jwtUtil, PBKDF2Encoder passwordEncoder, UserService userService) {
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
-        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
 
     @RequestMapping(value = "/signin", method = RequestMethod.POST)
-    public Mono<ResponseEntity<?>> login(@RequestBody AuthRequest authRequest) {
+    public Mono<ResponseEntity<?>> login(@RequestBody SignInRequest signInRequest) {
 
-        return userRepository.findByUsername(authRequest.getEmail()).map((userDetails) -> {
+        return userService.findByUsername(signInRequest.getEmail()).map((userDetails) -> {
 
-            if (passwordEncoder.matches(authRequest.getPassword(), userDetails.getPassword())) {
+            if (passwordEncoder.matches(signInRequest.getPassword(), userDetails.getPassword())) {
                 return ResponseEntity.ok(new AuthResponse(jwtUtil.generateToken(userDetails)));
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -45,6 +51,28 @@ public class AuthenticationREST {
         }).defaultIfEmpty(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 
-    // TODO -> Signup + Signout
+    @RequestMapping(value = "/signup", method = RequestMethod.POST)
+    public Mono<ResponseEntity<AuthResponse>> signup(@RequestBody SignUpRequest signUpRequest) {
 
+        if (signUpRequest.getPassword() != null && !signUpRequest.getPassword().isBlank()) {
+            signUpRequest.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
+        }
+
+        return userService.doUserInscription(signUpRequest).map(user ->
+                ResponseEntity.ok(new AuthResponse(jwtUtil.generateToken(user))))
+                .defaultIfEmpty(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+    }
+
+    @ExceptionHandler({WebClientResponseException.class})
+    public ResponseEntity<?> handleException(WebClientResponseException exception) {
+
+        if (BadRequest.class.equals(exception.getClass())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CustomBadRequestException(exception.getMessage()));
+        } else if (InternalServerError.class.equals(exception.getClass())) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new CustomInternalServerErrorException(exception.getMessage()));
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new CustomInternalServerErrorException(exception.getMessage()));
+        }
+
+    }
 }

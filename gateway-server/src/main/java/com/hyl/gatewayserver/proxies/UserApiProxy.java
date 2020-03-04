@@ -1,11 +1,14 @@
 package com.hyl.gatewayserver.proxies;
 
-import com.hyl.gatewayserver.utils.JWTUtil;
+import com.hyl.gatewayserver.model.SignUpRequest;
 import com.hyl.gatewayserver.model.User;
 import com.hyl.gatewayserver.service.UserService;
+import com.hyl.gatewayserver.utils.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
@@ -33,7 +36,7 @@ public class UserApiProxy {
     }
 
     public Mono<User> getIdByEmail(UserService userService, String email) {
-        String url = UriComponentsBuilder.fromPath("/username")
+        String url = UriComponentsBuilder.fromPath("/signin")
                 .queryParam("email", email)
                 .build()
                 .toString();
@@ -43,5 +46,19 @@ public class UserApiProxy {
                 .header("Authorization", "Bearer "+jwtUtil.generateToken(userService.getAdmin()))
                 .retrieve()
                 .bodyToMono(User.class);
+    }
+
+    public Mono<Boolean> addUser(UserService userService, SignUpRequest signUpRequest) {
+        String url = UriComponentsBuilder.fromPath("/signup")
+                .build()
+                .toString();
+
+        return webClient.post()
+                .uri(url)
+                .header("Authorization", "Bearer "+jwtUtil.generateToken(userService.getAdmin()))
+                .bodyValue(signUpRequest)
+                .retrieve()
+                .onStatus(HttpStatus::isError, ClientResponse::createException)
+                .bodyToMono(Boolean.class);
     }
 }

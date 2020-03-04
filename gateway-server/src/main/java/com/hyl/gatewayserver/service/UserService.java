@@ -1,6 +1,7 @@
 package com.hyl.gatewayserver.service;
 
 import com.hyl.gatewayserver.model.Role;
+import com.hyl.gatewayserver.model.SignUpRequest;
 import com.hyl.gatewayserver.model.User;
 import com.hyl.gatewayserver.proxies.UserApiProxy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,6 @@ public class UserService {
     }
 
     public Mono<User> findByUsername(String username) {
-
         if (username.equals(adminUsername)) {
             return Mono.just(admin);
         } else {
@@ -55,8 +55,16 @@ public class UserService {
                 }
             });
         }
+    }
 
-
+    public Mono<User> doUserInscription(SignUpRequest signUpRequest) {
+        return userApiProxy.addUser(this, signUpRequest).flatMap(booleanResponse -> {
+            if (booleanResponse) {
+                return Mono.just(new User(signUpRequest.getEmail(), signUpRequest.getPassword()));
+            } else {
+                return Mono.empty();
+            }
+        });
     }
 
 }

@@ -43,6 +43,7 @@ public class WebSecurityConfig {
                 .authorizeExchange()
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
                 .pathMatchers("/signin").permitAll()
+                .pathMatchers("/signup").permitAll()
                 .anyExchange().authenticated()
                 .and().build();
     }
