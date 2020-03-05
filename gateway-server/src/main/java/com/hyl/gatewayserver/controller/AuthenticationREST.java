@@ -11,6 +11,7 @@ import com.hyl.gatewayserver.utils.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.reactive.function.client.WebClientResponseException.BadRequest;
@@ -35,29 +36,37 @@ public class AuthenticationREST {
 
 
     @RequestMapping(value = "/signin", method = RequestMethod.POST)
+    @PreAuthorize("!(hasRole('USER') or hasRole('ADMIN'))")
     public Mono<ResponseEntity<?>> login(@RequestBody SignInRequest signInRequest) {
-
-        return userService.findByUsername(signInRequest.getEmail()).map((userDetails) -> {
+        return userService.findByUsername(signInRequest.getEmail()).flatMap((userDetails) -> {
 
             if (passwordEncoder.matches(signInRequest.getPassword(), userDetails.getPassword())) {
-                return ResponseEntity.ok(new AuthResponse(jwtUtil.generateToken(userDetails)));
+                return userService.doUserConnection(userDetails.getUsername()).map(aBoolean -> {
+                    if (aBoolean) {
+                        return ResponseEntity.ok(new AuthResponse(jwtUtil.generateToken(userDetails)));
+                    } else {
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                    }
+                }).defaultIfEmpty(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
             } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+                return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
             }
         }).defaultIfEmpty(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
     }
 
+
+    @PreAuthorize("!(hasRole('USER') or hasRole('ADMIN'))")
     @RequestMapping(value = "/signup", method = RequestMethod.POST)
     public Mono<ResponseEntity<AuthResponse>> signup(@RequestBody SignUpRequest signUpRequest) {
 
         if (signUpRequest.getPassword() != null && !signUpRequest.getPassword().isBlank()) {
             signUpRequest.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
         }
-
         return userService.doUserInscription(signUpRequest).map(user ->
                 ResponseEntity.ok(new AuthResponse(jwtUtil.generateToken(user))))
                 .defaultIfEmpty(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
     }
+
 
     @ExceptionHandler({WebClientResponseException.class})
     public ResponseEntity<?> handleException(WebClientResponseException exception) {

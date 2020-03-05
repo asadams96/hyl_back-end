@@ -43,7 +43,7 @@ public class UserService {
         if (username.equals(adminUsername)) {
             return Mono.just(admin);
         } else {
-            return userApiProxy.getIdByEmail(this, username).flatMap(userFromApi -> {
+            return userApiProxy.getUserByEmail(admin, username).flatMap(userFromApi -> {
                 if (userFromApi != null
                         && userFromApi.getUsername() != null && userFromApi.getPassword() != null
                         && !userFromApi.getUsername().isBlank() && !userFromApi.getPassword().isBlank()) {
@@ -58,7 +58,7 @@ public class UserService {
     }
 
     public Mono<User> doUserInscription(SignUpRequest signUpRequest) {
-        return userApiProxy.addUser(this, signUpRequest).flatMap(booleanResponse -> {
+        return userApiProxy.signup(admin, signUpRequest).flatMap(booleanResponse -> {
             if (booleanResponse) {
                 return Mono.just(new User(signUpRequest.getEmail(), signUpRequest.getPassword()));
             } else {
@@ -67,4 +67,7 @@ public class UserService {
         });
     }
 
+    public Mono<Boolean> doUserConnection(String email) {
+        return userApiProxy.signin(admin, email);
+    }
 }

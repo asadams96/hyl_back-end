@@ -2,7 +2,6 @@ package com.hyl.gatewayserver.proxies;
 
 import com.hyl.gatewayserver.model.SignUpRequest;
 import com.hyl.gatewayserver.model.User;
-import com.hyl.gatewayserver.service.UserService;
 import com.hyl.gatewayserver.utils.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,27 +34,43 @@ public class UserApiProxy {
         webClient = WebClient.create( urlGateway+"/user" );
     }
 
-    public Mono<User> getIdByEmail(UserService userService, String email) {
-        String url = UriComponentsBuilder.fromPath("/signin")
+
+    public Mono<User> getUserByEmail(User admin, String email) {
+        String url = UriComponentsBuilder.fromPath("/get-user-by-email")
                 .queryParam("email", email)
                 .build()
                 .toString();
 
         return webClient.get()
                 .uri(url)
-                .header("Authorization", "Bearer "+jwtUtil.generateToken(userService.getAdmin()))
+                .header("Authorization", "Bearer "+jwtUtil.generateToken(admin))
                 .retrieve()
+                .onStatus(HttpStatus::isError, ClientResponse::createException)
                 .bodyToMono(User.class);
     }
 
-    public Mono<Boolean> addUser(UserService userService, SignUpRequest signUpRequest) {
+    public Mono<Boolean> signin(User admin, String email) {
+        String url = UriComponentsBuilder.fromPath("/signin")
+                .build()
+                .toString();
+
+        return webClient.post()
+                .uri(url)
+                .header("Authorization", "Bearer "+jwtUtil.generateToken(admin))
+                .bodyValue(email)
+                .retrieve()
+                .onStatus(HttpStatus::isError, ClientResponse::createException)
+                .bodyToMono(Boolean.class);
+    }
+
+    public Mono<Boolean> signup(User admin, SignUpRequest signUpRequest) {
         String url = UriComponentsBuilder.fromPath("/signup")
                 .build()
                 .toString();
 
         return webClient.post()
                 .uri(url)
-                .header("Authorization", "Bearer "+jwtUtil.generateToken(userService.getAdmin()))
+                .header("Authorization", "Bearer "+jwtUtil.generateToken(admin))
                 .bodyValue(signUpRequest)
                 .retrieve()
                 .onStatus(HttpStatus::isError, ClientResponse::createException)

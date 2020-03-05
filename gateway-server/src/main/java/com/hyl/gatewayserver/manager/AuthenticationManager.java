@@ -33,7 +33,6 @@ public class AuthenticationManager implements ReactiveAuthenticationManager {
         try {
             username = jwtUtil.getUsernameFromToken(authToken);
         } catch (Exception e) {
-            e.printStackTrace();
             username = null;
         }
 
