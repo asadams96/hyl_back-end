@@ -76,4 +76,18 @@ public class UserApiProxy {
                 .onStatus(HttpStatus::isError, ClientResponse::createException)
                 .bodyToMono(Boolean.class);
     }
+
+    public Mono<Boolean> signout(User admin, String email) {
+        String url = UriComponentsBuilder.fromPath("/signout")
+                .build()
+                .toString();
+
+        return webClient.post()
+                .uri(url)
+                .header("Authorization", "Bearer "+jwtUtil.generateToken(admin))
+                .bodyValue(email)
+                .retrieve()
+                .onStatus(HttpStatus::isError, ClientResponse::createException)
+                .bodyToMono(Boolean.class);
+    }
 }

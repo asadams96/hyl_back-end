@@ -70,4 +70,8 @@ public class UserService {
     public Mono<Boolean> doUserConnection(String email) {
         return userApiProxy.signin(admin, email);
     }
+
+    public Mono<Boolean> doUserDisconnection(String email) {
+        return userApiProxy.signout(admin, email);
+    }
 }

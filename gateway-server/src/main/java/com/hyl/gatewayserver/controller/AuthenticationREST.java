@@ -9,6 +9,7 @@ import com.hyl.gatewayserver.model.SignUpRequest;
 import com.hyl.gatewayserver.service.UserService;
 import com.hyl.gatewayserver.utils.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,7 +17,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.reactive.function.client.WebClientResponseException.BadRequest;
 import org.springframework.web.reactive.function.client.WebClientResponseException.InternalServerError;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
+import java.net.http.HttpRequest;
+import java.util.Optional;
 
 @RestController
 public class AuthenticationREST {
@@ -62,9 +67,28 @@ public class AuthenticationREST {
         if (signUpRequest.getPassword() != null && !signUpRequest.getPassword().isBlank()) {
             signUpRequest.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
         }
-        return userService.doUserInscription(signUpRequest).map(user ->
-                ResponseEntity.ok(new AuthResponse(jwtUtil.generateToken(user))))
+        return userService.doUserInscription(signUpRequest).map(
+                user -> ResponseEntity.ok(new AuthResponse(jwtUtil.generateToken(user))))
                 .defaultIfEmpty(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+    }
+
+
+    @PreAuthorize("hasRole('USER')")
+    @RequestMapping(value = "/signout", method = RequestMethod.POST)
+    public Mono<ResponseEntity<?>> signout(@Autowired ServerWebExchange swe) {
+        String authHeader = swe.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String email = jwtUtil.getUsernameFromToken(authHeader.substring(7));
+            return userService.doUserDisconnection(email).map(aBoolean -> {
+                if (aBoolean) {
+                    return ResponseEntity.ok("");
+                } else {
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                }
+            }).defaultIfEmpty(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+        } else {
+            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CustomBadRequestException("Token not provided")));
+        }
     }
 
 
