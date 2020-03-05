@@ -6,6 +6,7 @@ import com.hyl.gatewayserver.exception.CustomInternalServerErrorException;
 import com.hyl.gatewayserver.model.AuthResponse;
 import com.hyl.gatewayserver.model.SignInRequest;
 import com.hyl.gatewayserver.model.SignUpRequest;
+import com.hyl.gatewayserver.model.User;
 import com.hyl.gatewayserver.service.UserService;
 import com.hyl.gatewayserver.utils.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,14 +63,20 @@ public class AuthenticationREST {
 
     @PreAuthorize("!(hasRole('USER') or hasRole('ADMIN'))")
     @RequestMapping(value = "/signup", method = RequestMethod.POST)
-    public Mono<ResponseEntity<AuthResponse>> signup(@RequestBody SignUpRequest signUpRequest) {
+    public Mono<ResponseEntity<?>> signup(@RequestBody SignUpRequest signUpRequest) {
 
         if (signUpRequest.getPassword() != null && !signUpRequest.getPassword().isBlank()) {
             signUpRequest.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
         }
-        return userService.doUserInscription(signUpRequest).map(
-                user -> ResponseEntity.ok(new AuthResponse(jwtUtil.generateToken(user))))
-                .defaultIfEmpty(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+        return userService.doUserInscription(signUpRequest).map(aBoolean -> {
+            if (aBoolean) {
+                return ResponseEntity.ok(new AuthResponse(
+                        jwtUtil.generateToken(new User(signUpRequest.getEmail(), signUpRequest.getPassword()))));
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+
+        }).defaultIfEmpty(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
     }
 
 
