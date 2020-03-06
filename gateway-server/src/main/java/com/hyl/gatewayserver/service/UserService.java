@@ -1,6 +1,8 @@
 package com.hyl.gatewayserver.service;
 
+import com.hyl.gatewayserver.encoder.PBKDF2Encoder;
 import com.hyl.gatewayserver.model.Role;
+import com.hyl.gatewayserver.model.SignInRequest;
 import com.hyl.gatewayserver.model.SignUpRequest;
 import com.hyl.gatewayserver.model.User;
 import com.hyl.gatewayserver.proxies.UserApiProxy;
@@ -30,37 +32,31 @@ public class UserService {
 
     private final UserApiProxy userApiProxy;
 
+    private final PBKDF2Encoder passwordEncoder;
+
     @Autowired
-    public UserService(UserApiProxy userApiProxy) {
+    public UserService(UserApiProxy userApiProxy, PBKDF2Encoder passwordEncoder) {
         this.userApiProxy = userApiProxy;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    
-    public Mono<User> findByUsername(String username) {
-        if (username.equals(adminUsername)) {
+
+    public Mono<User> doUserConnection(SignInRequest signInRequest) {
+        if (signInRequest.getEmail().equals(adminUsername)
+        && passwordEncoder.matches(signInRequest.getPassword(), adminPassword)) {
             return Mono.just(admin);
         } else {
-            return userApiProxy.getUserByEmail(admin, username).flatMap(userFromApi -> {
-                if (userFromApi != null
-                        && userFromApi.getUsername() != null && userFromApi.getPassword() != null
-                        && !userFromApi.getUsername().isBlank() && !userFromApi.getPassword().isBlank()) {
-                    userFromApi.setEnabled(true);
-                    userFromApi.setRoles(Collections.singletonList(Role.ROLE_USER));
-                    return Mono.just(userFromApi);
-                } else {
-                    return Mono.empty();
-                }
-            });
+            return userApiProxy.signin(admin, signInRequest).then(
+                    Mono.just(new User(signInRequest.getEmail(), passwordEncoder.encode(signInRequest.getPassword()),
+                            true, Collections.singletonList(Role.ROLE_USER))));
         }
     }
+
 
     public Mono<Boolean> doUserInscription(SignUpRequest signUpRequest) {
         return userApiProxy.signup(admin, signUpRequest);
     }
 
-    public Mono<Boolean> doUserConnection(String email) {
-        return userApiProxy.signin(admin, email);
-    }
 
     public Mono<Boolean> doUserDisconnection(String email) {
         return userApiProxy.signout(admin, email);

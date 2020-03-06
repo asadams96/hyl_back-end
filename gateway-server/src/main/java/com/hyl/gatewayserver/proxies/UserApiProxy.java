@@ -1,5 +1,6 @@
 package com.hyl.gatewayserver.proxies;
 
+import com.hyl.gatewayserver.model.SignInRequest;
 import com.hyl.gatewayserver.model.SignUpRequest;
 import com.hyl.gatewayserver.model.User;
 import com.hyl.gatewayserver.utils.JWTUtil;
@@ -35,21 +36,7 @@ public class UserApiProxy {
     }
 
 
-    public Mono<User> getUserByEmail(User admin, String email) {
-        String url = UriComponentsBuilder.fromPath("/get-user-by-email")
-                .queryParam("email", email)
-                .build()
-                .toString();
-
-        return webClient.get()
-                .uri(url)
-                .header("Authorization", "Bearer "+jwtUtil.generateToken(admin))
-                .retrieve()
-                .onStatus(HttpStatus::isError, ClientResponse::createException)
-                .bodyToMono(User.class);
-    }
-
-    public Mono<Boolean> signin(User admin, String email) {
+    public Mono<Void> signin(User admin, SignInRequest signInRequest) {
         String url = UriComponentsBuilder.fromPath("/signin")
                 .build()
                 .toString();
@@ -57,11 +44,12 @@ public class UserApiProxy {
         return webClient.post()
                 .uri(url)
                 .header("Authorization", "Bearer "+jwtUtil.generateToken(admin))
-                .bodyValue(email)
+                .bodyValue(signInRequest)
                 .retrieve()
                 .onStatus(HttpStatus::isError, ClientResponse::createException)
-                .bodyToMono(Boolean.class);
+                .bodyToMono(void.class);
     }
+
 
     public Mono<Boolean> signup(User admin, SignUpRequest signUpRequest) {
         String url = UriComponentsBuilder.fromPath("/signup")
@@ -77,6 +65,7 @@ public class UserApiProxy {
                 .bodyToMono(Boolean.class);
     }
 
+
     public Mono<Boolean> signout(User admin, String email) {
         String url = UriComponentsBuilder.fromPath("/signout")
                 .build()
@@ -90,4 +79,5 @@ public class UserApiProxy {
                 .onStatus(HttpStatus::isError, ClientResponse::createException)
                 .bodyToMono(Boolean.class);
     }
+
 }

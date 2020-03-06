@@ -3,6 +3,7 @@ package com.hyl.gatewayserver.controller;
 import com.hyl.gatewayserver.encoder.PBKDF2Encoder;
 import com.hyl.gatewayserver.exception.CustomBadRequestException;
 import com.hyl.gatewayserver.exception.CustomInternalServerErrorException;
+import com.hyl.gatewayserver.exception.CustomUnauthorizedException;
 import com.hyl.gatewayserver.model.AuthResponse;
 import com.hyl.gatewayserver.model.SignInRequest;
 import com.hyl.gatewayserver.model.SignUpRequest;
@@ -18,11 +19,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.reactive.function.client.WebClientResponseException.BadRequest;
 import org.springframework.web.reactive.function.client.WebClientResponseException.InternalServerError;
+import org.springframework.web.reactive.function.client.WebClientResponseException.Unauthorized;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-
-import java.net.http.HttpRequest;
-import java.util.Optional;
 
 @RestController
 public class AuthenticationREST {
@@ -44,20 +43,17 @@ public class AuthenticationREST {
     @RequestMapping(value = "/signin", method = RequestMethod.POST)
     @PreAuthorize("!(hasRole('USER') or hasRole('ADMIN'))")
     public Mono<ResponseEntity<?>> login(@RequestBody SignInRequest signInRequest) {
-        return userService.findByUsername(signInRequest.getEmail()).flatMap((userDetails) -> {
 
-            if (passwordEncoder.matches(signInRequest.getPassword(), userDetails.getPassword())) {
-                return userService.doUserConnection(userDetails.getUsername()).map(aBoolean -> {
-                    if (aBoolean) {
-                        return ResponseEntity.ok(new AuthResponse(jwtUtil.generateToken(userDetails)));
-                    } else {
-                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-                    }
-                }).defaultIfEmpty(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
-            } else {
-                return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
-            }
-        }).defaultIfEmpty(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+        if (signInRequest.getEmail() == null || signInRequest.getPassword() == null
+            || signInRequest.getEmail().isBlank() || signInRequest.getPassword().isBlank()) {
+
+            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new CustomBadRequestException("Les champs 'email' et 'password' ne doivent pas être vide")));
+
+        } else {
+            return userService.doUserConnection(signInRequest)
+                    .map(user -> ResponseEntity.ok(new AuthResponse(jwtUtil.generateToken(user))));
+        }
     }
 
 
@@ -101,13 +97,21 @@ public class AuthenticationREST {
 
     @ExceptionHandler({WebClientResponseException.class})
     public ResponseEntity<?> handleException(WebClientResponseException exception) {
-
         if (BadRequest.class.equals(exception.getClass())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CustomBadRequestException(exception.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new CustomBadRequestException(exception.getMessage()));
+
+        } else if (Unauthorized.class.equals(exception.getClass())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new CustomUnauthorizedException(exception.getMessage()));
+
         } else if (InternalServerError.class.equals(exception.getClass())) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new CustomInternalServerErrorException(exception.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new CustomInternalServerErrorException(exception.getMessage()));
+
         } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new CustomInternalServerErrorException(exception.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new CustomInternalServerErrorException(exception.getMessage()));
         }
     }
 }
