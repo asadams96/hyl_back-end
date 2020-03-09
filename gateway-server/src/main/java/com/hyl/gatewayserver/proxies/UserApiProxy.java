@@ -36,7 +36,7 @@ public class UserApiProxy {
     }
 
 
-    public Mono<Void> signin(User admin, SignInRequest signInRequest) {
+    public Mono<String> signin(User admin, SignInRequest signInRequest) {
         String url = UriComponentsBuilder.fromPath("/signin")
                 .build()
                 .toString();
@@ -47,7 +47,7 @@ public class UserApiProxy {
                 .bodyValue(signInRequest)
                 .retrieve()
                 .onStatus(HttpStatus::isError, ClientResponse::createException)
-                .bodyToMono(Void.class);
+                .bodyToMono(String.class);
     }
 
 
@@ -64,20 +64,4 @@ public class UserApiProxy {
                 .onStatus(HttpStatus::isError, ClientResponse::createException)
                 .bodyToMono(Void.class);
     }
-
-
-    public Mono<Boolean> signout(User admin, String email) {
-        String url = UriComponentsBuilder.fromPath("/signout")
-                .build()
-                .toString();
-
-        return webClient.post()
-                .uri(url)
-                .header("Authorization", "Bearer "+jwtUtil.generateToken(admin))
-                .bodyValue(email)
-                .retrieve()
-                .onStatus(HttpStatus::isError, ClientResponse::createException)
-                .bodyToMono(Boolean.class);
-    }
-
 }

@@ -1,5 +1,6 @@
 package com.hyl.userapi.controller;
 
+import com.hyl.userapi.exception.CustomBadRequestException;
 import com.hyl.userapi.model.User;
 import com.hyl.userapi.service.UserService;
 import org.slf4j.Logger;
@@ -7,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping(path = "user")
@@ -41,8 +44,8 @@ public class UserController {
 
     // ********************************************************* POST
     @PostMapping(path = "/signin")
-    public void signin (@Validated(User.AuthenticateValidation.class) @RequestBody User user) {
-        userService.authenticateUser(user.getEmail(), user.getPassword());
+    public String signin (@Validated(User.AuthenticateValidation.class) @RequestBody User user) {
+        return userService.authenticateUser(user.getEmail(), user.getPassword());
     }
 
     @PostMapping(path = "/signup")
@@ -51,8 +54,20 @@ public class UserController {
     }
 
     @PostMapping(path = "/signout")
-    public void signout () {
-        // TODO
+    public void signout (@Autowired HttpServletRequest request) {
+        String idUserStr = request.getHeader("idUser");
+        if ( idUserStr == null ) {
+            throw new CustomBadRequestException("Aucun utilisateur n'est spécifié dans le header 'idUser' de la requête.");
+        }
+
+        long idUser;
+        try {
+            idUser = Long.parseLong(idUserStr);
+        } catch (NumberFormatException e) {
+            throw new CustomBadRequestException("L'id de l'utilisateur à déconnecter doit être un nombre.");
+        }
+
+        userService.disconnectUser(idUser);
     }
 
     @PostMapping(path = "/forgot-password")

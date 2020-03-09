@@ -7,11 +7,9 @@ import com.hyl.gatewayserver.exception.CustomUnauthorizedException;
 import com.hyl.gatewayserver.model.AuthResponse;
 import com.hyl.gatewayserver.model.SignInRequest;
 import com.hyl.gatewayserver.model.SignUpRequest;
-import com.hyl.gatewayserver.model.User;
 import com.hyl.gatewayserver.service.UserService;
 import com.hyl.gatewayserver.utils.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -20,22 +18,17 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.reactive.function.client.WebClientResponseException.BadRequest;
 import org.springframework.web.reactive.function.client.WebClientResponseException.InternalServerError;
 import org.springframework.web.reactive.function.client.WebClientResponseException.Unauthorized;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @RestController
 public class AuthenticationREST {
 
     private final JWTUtil jwtUtil;
-
-    private final PBKDF2Encoder passwordEncoder;
-
     private final UserService userService;
 
     @Autowired
     public AuthenticationREST(JWTUtil jwtUtil, PBKDF2Encoder passwordEncoder, UserService userService) {
         this.jwtUtil = jwtUtil;
-        this.passwordEncoder = passwordEncoder;
         this.userService = userService;
     }
 
@@ -52,7 +45,7 @@ public class AuthenticationREST {
 
         } else {
             return userService.doUserConnection(signInRequest)
-                    .map(user -> ResponseEntity.ok(new AuthResponse(jwtUtil.generateToken(user))));
+                    .map(user -> ResponseEntity.ok(new AuthResponse(user.getId(), jwtUtil.generateToken(user))));
         }
     }
 
@@ -63,27 +56,8 @@ public class AuthenticationREST {
 
       return userService.doUserInscription(signUpRequest).then(
               userService.doUserConnection(new SignInRequest(signUpRequest.getEmail(), signUpRequest.getPassword()))
-                      .map(user -> ResponseEntity.ok(new AuthResponse(jwtUtil.generateToken(user)))));
+                      .map(user -> ResponseEntity.ok(new AuthResponse(user.getId(), jwtUtil.generateToken(user)))));
   }
-
-
-    @PreAuthorize("hasRole('USER')")
-    @RequestMapping(value = "/signout", method = RequestMethod.POST)
-    public Mono<ResponseEntity<?>> signout(@Autowired ServerWebExchange swe) {
-        String authHeader = swe.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String email = jwtUtil.getUsernameFromToken(authHeader.substring(7));
-            return userService.doUserDisconnection(email).map(aBoolean -> {
-                if (aBoolean) {
-                    return ResponseEntity.ok("");
-                } else {
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-                }
-            }).defaultIfEmpty(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
-        } else {
-            return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new CustomBadRequestException("Token not provided")));
-        }
-    }
 
 
     @ExceptionHandler({WebClientResponseException.class})

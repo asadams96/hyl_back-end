@@ -1,7 +1,6 @@
 package com.hyl.gatewayserver.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,57 +12,34 @@ import java.util.stream.Collectors;
 
 public class User implements UserDetails {
 
+
+    // ********************************************* PARAMETRES
+    private String id;
     private String username;
     private String password;
-
     private Boolean enabled;
-
     private List<Role> roles;
 
 
+    // ********************************************* CONSTRUCTEURS
     public User() {}
 
-    public User(String username, String password) {
-        this.username = username;
-        this.password = password;
-    }
-
-    public User(String username, String password, Boolean enabled, List<Role> roles) {
+    public User(String id, String username, String password, Boolean enabled, List<Role> roles) {
+        this.id = id;
         this.username = username;
         this.password = password;
         this.enabled = enabled;
         this.roles = roles;
     }
 
-    public Boolean getEnabled() {
-        return enabled;
+
+    // ********************************************* GETTERS / SETTERS
+    public String getId() {
+        return id;
     }
 
-    public void setEnabled(Boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public List<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(List<Role> roles) {
-        this.roles = roles;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", enabled=" + enabled +
-                ", roles=" + roles +
-                '}';
-    }
-
-
-    public User(String username) {
-        this.username = username;
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
@@ -100,8 +76,33 @@ public class User implements UserDetails {
     public String getPassword() {
         return password;
     }
-    @JsonProperty
+
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
+    }
+
+
+    // ********************************************* TO STRING
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + id + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", enabled=" + enabled +
+                ", roles=" + roles +
+                '}';
     }
 }

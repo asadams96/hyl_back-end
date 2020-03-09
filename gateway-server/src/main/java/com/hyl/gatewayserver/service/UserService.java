@@ -27,7 +27,7 @@ public class UserService {
 
     @PostConstruct
     public void init() {
-        this.admin = new User(adminUsername, adminPassword, true, Collections.singletonList(Role.ROLE_ADMIN));
+        this.admin = new User(null, adminUsername, adminPassword, true, Collections.singletonList(Role.ROLE_ADMIN));
     }
 
     private final UserApiProxy userApiProxy;
@@ -46,9 +46,9 @@ public class UserService {
         && passwordEncoder.matches(signInRequest.getPassword(), adminPassword)) {
             return Mono.just(admin);
         } else {
-            return userApiProxy.signin(admin, signInRequest).then(
-                    Mono.just(new User(signInRequest.getEmail(), passwordEncoder.encode(signInRequest.getPassword()),
-                            true, Collections.singletonList(Role.ROLE_USER))));
+            return userApiProxy.signin(admin, signInRequest).flatMap(idUser -> Mono.just(
+                    new User(idUser, signInRequest.getEmail(), passwordEncoder.encode(signInRequest.getPassword()),
+                    true, Collections.singletonList(Role.ROLE_USER))));
         }
     }
 
@@ -57,8 +57,4 @@ public class UserService {
         return userApiProxy.signup(admin, signUpRequest);
     }
 
-
-    public Mono<Boolean> doUserDisconnection(String email) {
-        return userApiProxy.signout(admin, email);
-    }
 }

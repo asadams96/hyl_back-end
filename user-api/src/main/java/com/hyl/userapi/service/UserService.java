@@ -32,25 +32,31 @@ public class UserService {
 
 
     // ********************************************************* Méthodes
-    public void authenticateUser (String email, String password) {
+    public String authenticateUser (String email, String password) {
         Optional<User> optUser = userDao.findByEmail(email);
-        optUser.ifPresentOrElse(
-                user -> {
-                    if(!passwordEncoder.matches(password, user.getPassword())) {
-                        throw new CustomUnauthorizedException("Couple email/password incorrect");
-                    } else {
-                        httpSession.setAttribute("user"+user.getId(), user);
-                    }
-                },
-                () -> {
-                    throw new CustomUnauthorizedException("Utilisateur inconnu");
-                }
-        );
+
+        if (optUser.isPresent()) {
+            User user = optUser.get();
+            if(!passwordEncoder.matches(password, user.getPassword())) {
+                throw new CustomUnauthorizedException("Couple email/password incorrect");
+            } else {
+                httpSession.setAttribute("user"+user.getId(), user);
+                return String.valueOf(user.getId());
+            }
+        } else {
+            throw new CustomUnauthorizedException("Utilisateur inconnu");
+        }
     }
 
     public void registerUser(User user) {
-        user.setCellphone( "+33" + user.getCellphone().substring(1) );
+        if (user.getCellphone() != null && !user.getCellphone().isEmpty()) {
+            user.setCellphone( "+33" + user.getCellphone().substring(1) );
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userDao.save(user);
+    }
+
+    public void disconnectUser(long idUser) {
+        httpSession.removeAttribute("user"+idUser);
     }
 }
