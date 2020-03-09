@@ -57,23 +57,14 @@ public class AuthenticationREST {
     }
 
 
-    @PreAuthorize("!(hasRole('USER') or hasRole('ADMIN'))")
-    @RequestMapping(value = "/signup", method = RequestMethod.POST)
-    public Mono<ResponseEntity<?>> signup(@RequestBody SignUpRequest signUpRequest) {
+  @PreAuthorize("!(hasRole('USER') or hasRole('ADMIN'))")
+  @RequestMapping(value = "/signup", method = RequestMethod.POST)
+  public Mono<ResponseEntity<?>> signup(@RequestBody SignUpRequest signUpRequest) {
 
-        if (signUpRequest.getPassword() != null && !signUpRequest.getPassword().isBlank()) {
-            signUpRequest.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
-        }
-        return userService.doUserInscription(signUpRequest).map(aBoolean -> {
-            if (aBoolean) {
-                return ResponseEntity.ok(new AuthResponse(
-                        jwtUtil.generateToken(new User(signUpRequest.getEmail(), signUpRequest.getPassword()))));
-            } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-            }
-
-        }).defaultIfEmpty(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
-    }
+      return userService.doUserInscription(signUpRequest).then(
+              userService.doUserConnection(new SignInRequest(signUpRequest.getEmail(), signUpRequest.getPassword()))
+                      .map(user -> ResponseEntity.ok(new AuthResponse(jwtUtil.generateToken(user)))));
+  }
 
 
     @PreAuthorize("hasRole('USER')")

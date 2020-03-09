@@ -53,7 +53,7 @@ public class UserService {
     }
 
 
-    public Mono<Boolean> doUserInscription(SignUpRequest signUpRequest) {
+    public Mono<Void> doUserInscription(SignUpRequest signUpRequest) {
         return userApiProxy.signup(admin, signUpRequest);
     }
 

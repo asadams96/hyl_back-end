@@ -4,6 +4,8 @@ import com.hyl.userapi.dao.UserDao;
 import com.hyl.userapi.encoder.PBKDF2Encoder;
 import com.hyl.userapi.exception.CustomUnauthorizedException;
 import com.hyl.userapi.model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpSession;
@@ -11,6 +13,10 @@ import java.util.Optional;
 
 @Service
 public class UserService {
+
+    // ********************************************************* Logger
+    private final Logger logger = LoggerFactory.getLogger(UserService.class);
+
 
     // ********************************************************* Bean
     private final UserDao userDao;
@@ -22,15 +28,6 @@ public class UserService {
         this.userDao = userDao;
         this.passwordEncoder = passwordEncoder;
         this.httpSession = httpSession;
-
-        // TODO ENLEVER INSERT utilisateur exemple
-        User user0 = new User();
-        user0.setEmail("utilisateur@mail.fr");
-        user0.setPassword(passwordEncoder.encode("password"));
-        user0.setName("name");
-        user0.setSurname("surname");
-        user0.setPseudo("pseudo");
-        userDao.save(user0);
     }
 
 
@@ -49,5 +46,11 @@ public class UserService {
                     throw new CustomUnauthorizedException("Utilisateur inconnu");
                 }
         );
+    }
+
+    public void registerUser(User user) {
+        user.setCellphone( "+33" + user.getCellphone().substring(1) );
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userDao.save(user);
     }
 }

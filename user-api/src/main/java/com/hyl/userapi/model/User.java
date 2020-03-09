@@ -1,30 +1,94 @@
 package com.hyl.userapi.model;
 
+import com.hyl.userapi.model.constraint.*;
+import org.hibernate.validator.constraints.Length;
+
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 
 @Entity
 @Table(name = "usager")
 public class User {
+    
+    //************************************************** GROUPE DE VALIDATION
+    public interface AuthenticateValidation {}
+    public interface RegisterValidation {}
 
+    
+    //************************************************** PARAMETRES
     @Id
     @Column(name = "id_usager")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotBlank(message = "{hyl.user.name.error.notblank}", groups = {RegisterValidation.class})
+    @Length(min = 3, max = 15, message = "{hyl.user.name.error.length}", groups = {RegisterValidation.class})
+    @Pattern(regexp = "[a-zA-Z-]*", message = "{hyl.user.name.error.pattern}", groups = {RegisterValidation.class})
+    @CharacterRepetitionConstraint(message = "{hyl.user.name.error.characterrepetition}", groups = {RegisterValidation.class})
+    @NoWhiteSpaceConstraint(message = "{hyl.user.name.error.nowhitespace}", groups = {RegisterValidation.class})
     @Column(name = "name")
     private String name;
+
+    @NotBlank(message = "{hyl.user.surname.error.notblank}", groups = {RegisterValidation.class})
+    @Length(min = 3, max = 30, message = "{hyl.user.surname.error.length}", groups = {RegisterValidation.class})
+    @Pattern(regexp = "[a-zA-Z -]*", message = "{hyl.user.surname.error.pattern}", groups = {RegisterValidation.class})
+    @CharacterRepetitionConstraint(message = "{hyl.user.surname.error.characterrepetition}", groups = {RegisterValidation.class})
+    @NoWhiteSpaceConstraint(message = "{hyl.user.surname.error.nowhitespace}", groups = {RegisterValidation.class})
     @Column(name = "surname")
     private String surname;
-    @Column(name = "email")
+
+    @NotBlank(message = "{hyl.user.email.error.notblank}", groups = {AuthenticateValidation.class, RegisterValidation.class})
+    @Length(min = 10, max = 50, message = "{hyl.user.email.error.length}", groups = {AuthenticateValidation.class, RegisterValidation.class})
+    @Pattern(regexp = "^[a-z0-9._-]{3,99}@[a-z0-9._-]{3,99}.[a-z]{2,}$", message = "{hyl.user.email.error.pattern}", groups = {AuthenticateValidation.class, RegisterValidation.class})
+    @CharacterRepetitionConstraint(message = "{hyl.user.email.error.characterrepetition}", groups = {AuthenticateValidation.class, RegisterValidation.class})
+    @AtomicEmailConstraint(groups = {RegisterValidation.class})
+    @Column(name = "email", unique = true)
     private String email;
+
+    @NotBlank(message = "{hyl.user.pseudo.error.notblank}", groups = {RegisterValidation.class})
+    @Length(min = 3, max = 15, message = "{hyl.user.pseudo.error.length}", groups = {RegisterValidation.class})
+    @NoWhiteSpaceConstraint(message = "{hyl.user.pseudo.error.nowhitespace}", groups = {RegisterValidation.class})
+    @CharacterRepetitionConstraint(message = "{hyl.user.pseudo.error.characterrepetition}", groups = {RegisterValidation.class})
     @Column(name = "pseudo")
     private String pseudo;
+
+    @CivilityConstraint(groups = {RegisterValidation.class})
     @Column(name = "civility")
     private String civility;
-    @Column(name = "cellphone")
+
+    @CellphoneConstraint(groups = {RegisterValidation.class})
+    @AtomicCellphoneConstraint(groups = {RegisterValidation.class})
+    @Column(name = "cellphone", unique = true)
     private String cellphone;
+
+    @NotBlank(message = "{hyl.user.password.error.notblank}", groups = {AuthenticateValidation.class, RegisterValidation.class})
+    @Length(min = 8, max = 25, message = "{hyl.user.password.error.length}", groups = {AuthenticateValidation.class, RegisterValidation.class})
     @Column(name = "password")
     private String password;
 
+    
+    //************************************************** CONSTRUCTEURS
+    public User() {}
+
+    public User(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
+    
+    public User(String email, String name, String surname, String pseudo, 
+                String civility, String cellphone, String password) {
+        this.email = email;
+        this.name = name;
+        this.surname = surname;
+        this.pseudo = pseudo;
+        this.civility = civility;
+        this.cellphone = cellphone;
+        this.password = password;
+    }
+
+
+    //************************************************** GETTERS / SETTERS
     public Long getId() {
         return id;
     }
@@ -89,6 +153,8 @@ public class User {
         this.password = password;
     }
 
+
+    //************************************************** TO STRING
     @Override
     public String toString() {
         return "User{" +

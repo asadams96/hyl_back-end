@@ -47,11 +47,11 @@ public class UserApiProxy {
                 .bodyValue(signInRequest)
                 .retrieve()
                 .onStatus(HttpStatus::isError, ClientResponse::createException)
-                .bodyToMono(void.class);
+                .bodyToMono(Void.class);
     }
 
 
-    public Mono<Boolean> signup(User admin, SignUpRequest signUpRequest) {
+    public Mono<Void> signup(User admin, SignUpRequest signUpRequest) {
         String url = UriComponentsBuilder.fromPath("/signup")
                 .build()
                 .toString();
@@ -62,7 +62,7 @@ public class UserApiProxy {
                 .bodyValue(signUpRequest)
                 .retrieve()
                 .onStatus(HttpStatus::isError, ClientResponse::createException)
-                .bodyToMono(Boolean.class);
+                .bodyToMono(Void.class);
     }
 
 
