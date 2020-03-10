@@ -31,9 +31,9 @@ public class UserController {
 
 
     // ********************************************************* GET
-    @GetMapping(path = "/{id}")
-    public void getUser() {
-        // TODO
+    @GetMapping(path = "/get-user")
+    public User getUser(@Autowired HttpServletRequest request) {
+        return userService.getUserById(extractIdUserFromHeader(request));
     }
 
     @GetMapping(path = "/check-email")
@@ -55,19 +55,7 @@ public class UserController {
 
     @PostMapping(path = "/signout")
     public void signout (@Autowired HttpServletRequest request) {
-        String idUserStr = request.getHeader("idUser");
-        if ( idUserStr == null ) {
-            throw new CustomBadRequestException("Aucun utilisateur n'est spécifié dans le header 'idUser' de la requête.");
-        }
-
-        long idUser;
-        try {
-            idUser = Long.parseLong(idUserStr);
-        } catch (NumberFormatException e) {
-            throw new CustomBadRequestException("L'id de l'utilisateur à déconnecter doit être un nombre.");
-        }
-
-        userService.disconnectUser(idUser);
+        userService.disconnectUser(extractIdUserFromHeader(request));
     }
 
     @PostMapping(path = "/forgot-password")
@@ -80,5 +68,20 @@ public class UserController {
     @PatchMapping(path = "/{id}")
     public void updateUser () {
         // TODO
+    }
+
+
+    // ********************************************************* SHARE
+    private long extractIdUserFromHeader (HttpServletRequest request) {
+        String idUserStr = request.getHeader("idUser");
+        if ( idUserStr == null ) {
+            throw new CustomBadRequestException("Aucun utilisateur n'est spécifié dans le header 'idUser' de la requête.");
+        }
+
+        try {
+            return Long.parseLong(idUserStr);
+        } catch (NumberFormatException e) {
+            throw new CustomBadRequestException("L'id de l'utilisateur doit être un nombre.");
+        }
     }
 }

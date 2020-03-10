@@ -45,7 +45,7 @@ public class AuthenticationREST {
 
         } else {
             return userService.doUserConnection(signInRequest)
-                    .map(user -> ResponseEntity.ok(new AuthResponse(user.getId(), jwtUtil.generateToken(user))));
+                    .map(user -> ResponseEntity.ok(new AuthResponse(jwtUtil.generateToken(user), user.getId())));
         }
     }
 

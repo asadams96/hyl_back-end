@@ -2,6 +2,7 @@ package com.hyl.userapi.service;
 
 import com.hyl.userapi.dao.UserDao;
 import com.hyl.userapi.encoder.PBKDF2Encoder;
+import com.hyl.userapi.exception.CustomNotFoundException;
 import com.hyl.userapi.exception.CustomUnauthorizedException;
 import com.hyl.userapi.model.User;
 import org.apache.commons.lang.RandomStringUtils;
@@ -50,7 +51,7 @@ public class UserService {
                 return String.valueOf(user.getId());
             }
         } else {
-            throw new CustomUnauthorizedException("Aucun utilisateur n'est associé à "+email);
+            throw new CustomNotFoundException("Aucun utilisateur n'est associé à "+email);
         }
     }
 
@@ -74,13 +75,19 @@ public class UserService {
             emailService.sendNewPassword(user, password);
 
         }, () -> {
-            throw new CustomUnauthorizedException("Aucun utilisateur n'est associé à "+email);
+            throw new CustomNotFoundException("Aucun utilisateur n'est associé à "+email);
         });
 
     }
 
     public Boolean checkAtomicEmail(String email) {
         return userDao.findByEmail(email).isEmpty();
+    }
+
+    public User getUserById(long idUser) {
+        Optional<User> optUser = userDao.findById(idUser);
+        if (optUser.isPresent()) return optUser.get();
+        else throw new CustomNotFoundException("Utilisateur introuvable");
     }
 
     private String generatePassword() {
