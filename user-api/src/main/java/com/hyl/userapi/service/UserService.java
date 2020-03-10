@@ -2,6 +2,7 @@ package com.hyl.userapi.service;
 
 import com.hyl.userapi.dao.UserDao;
 import com.hyl.userapi.encoder.PBKDF2Encoder;
+import com.hyl.userapi.exception.CustomBadRequestException;
 import com.hyl.userapi.exception.CustomNotFoundException;
 import com.hyl.userapi.exception.CustomUnauthorizedException;
 import com.hyl.userapi.model.User;
@@ -9,6 +10,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import javax.servlet.http.HttpSession;
 import java.util.Collections;
@@ -56,11 +58,7 @@ public class UserService {
     }
 
     public void registerUser(User user) {
-        if (user.getCellphone() != null && !user.getCellphone().isEmpty()) {
-            user.setCellphone( "+33" + user.getCellphone().substring(1) );
-        }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        userDao.save(user);
+        userDao.save(toDoBeforeSavingUser(user));
     }
 
     public void disconnectUser(long idUser) {
@@ -84,10 +82,71 @@ public class UserService {
         return userDao.findByEmail(email).isEmpty();
     }
 
+    public Boolean checkAtomicCellphone(String cellphone) {
+        return userDao.findByCellphone(cellphone).isEmpty();
+    }
+
     public User getUserById(long idUser) {
         Optional<User> optUser = userDao.findById(idUser);
         if (optUser.isPresent()) return optUser.get();
         else throw new CustomNotFoundException("Utilisateur introuvable");
+    }
+
+    public void updateUser(long idUser, User user) {
+        User user0 = this.getUserById(idUser);
+        boolean checkAtomicEmail = false;
+        boolean checkAtomicCellphone = false;
+
+        if (user.getName() != null && !user.getName().equals(user0.getName())) {
+            user0.setName(user.getName());
+        }
+        if (user.getSurname() != null && !user.getSurname().equals(user0.getSurname())) {
+            user0.setSurname(user.getSurname());
+        }
+        if (user.getPseudo() != null && !user.getPseudo().equals(user0.getPseudo())) {
+            user0.setPseudo(user.getPseudo());
+        }
+        if (user.getPassword() != null && !user.getPassword().isBlank()) {
+            user0.setPassword(user.getPassword());
+        }
+        if (user.getCivility() != null && !user.getCivility().equals(user0.getCivility())) {
+            user0.setCivility(user.getCivility());
+        }
+        if (user.getCellphone() != null && !user.getCellphone().equals(user0.getCellphone())) {
+            user0.setCellphone(user.getCellphone());
+            checkAtomicCellphone = true;
+        }
+        if (user.getEmail() != null && !user.getEmail().equals(user0.getEmail())) {
+            user0.setEmail(user.getEmail());
+            checkAtomicEmail = true;
+        }
+
+        this.checkUserIntegrity(user0, checkAtomicEmail, checkAtomicCellphone);
+        this.userDao.save(this.toDoBeforeSavingUser(user0));
+    }
+
+    private void checkUserIntegrity(@Validated(User.UpdateValidation.class) User user,
+                                    boolean checkAtomicEmail, boolean checkAtomicCellphone) {
+        if (checkAtomicEmail && !this.checkAtomicEmail(user.getEmail())) {
+           throw new CustomBadRequestException("{hyl.user.email.error.atomic}");
+        }
+        if (checkAtomicCellphone && !this.checkAtomicCellphone(user.getCellphone())) {
+            throw new CustomBadRequestException("{hyl.user.cellphone.error.atomic}");
+        }
+    }
+
+    private User toDoBeforeSavingUser(User user) {
+
+        if (user.getCellphone() != null && user.getCellphone().isEmpty()) {
+            user.setCellphone(null);
+        } else if (user.getCellphone() != null && !user.getCellphone().isEmpty()) {
+            user.setCellphone( "+33" + user.getCellphone().substring(1) );
+        }
+        if (user.getCivility() != null && user.getCivility().isEmpty()) {
+            user.setCivility(null);
+        }
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return user;
     }
 
     private String generatePassword() {

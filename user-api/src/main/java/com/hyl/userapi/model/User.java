@@ -14,6 +14,7 @@ public class User {
     //************************************************** GROUPE DE VALIDATION
     public interface AuthenticateValidation {}
     public interface RegisterValidation {}
+    public interface UpdateValidation {}
 
     
     //************************************************** PARAMETRES
@@ -22,48 +23,48 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "{hyl.user.name.error.notblank}", groups = {RegisterValidation.class})
-    @Length(min = 3, max = 15, message = "{hyl.user.name.error.length}", groups = {RegisterValidation.class})
-    @Pattern(regexp = "[a-zA-Z-]*", message = "{hyl.user.name.error.pattern}", groups = {RegisterValidation.class})
-    @CharacterRepetitionConstraint(message = "{hyl.user.name.error.characterrepetition}", groups = {RegisterValidation.class})
-    @NoWhiteSpaceConstraint(message = "{hyl.user.name.error.nowhitespace}", groups = {RegisterValidation.class})
+    @NotBlank(message = "{hyl.user.name.error.notblank}", groups = {RegisterValidation.class, UpdateValidation.class})
+    @Length(min = 3, max = 15, message = "{hyl.user.name.error.length}", groups = {RegisterValidation.class, UpdateValidation.class})
+    @Pattern(regexp = "[a-zA-Z-]*", message = "{hyl.user.name.error.pattern}", groups = {RegisterValidation.class, UpdateValidation.class})
+    @CharacterRepetitionConstraint(message = "{hyl.user.name.error.characterrepetition}", groups = {RegisterValidation.class, UpdateValidation.class})
+    @NoWhiteSpaceConstraint(message = "{hyl.user.name.error.nowhitespace}", groups = {RegisterValidation.class, UpdateValidation.class})
     @Column(name = "name")
     private String name;
 
-    @NotBlank(message = "{hyl.user.surname.error.notblank}", groups = {RegisterValidation.class})
-    @Length(min = 3, max = 30, message = "{hyl.user.surname.error.length}", groups = {RegisterValidation.class})
-    @Pattern(regexp = "[a-zA-Z -]*", message = "{hyl.user.surname.error.pattern}", groups = {RegisterValidation.class})
-    @CharacterRepetitionConstraint(message = "{hyl.user.surname.error.characterrepetition}", groups = {RegisterValidation.class})
-    @NoWhiteSpaceConstraint(message = "{hyl.user.surname.error.nowhitespace}", groups = {RegisterValidation.class})
+    @NotBlank(message = "{hyl.user.surname.error.notblank}", groups = {RegisterValidation.class, UpdateValidation.class})
+    @Length(min = 3, max = 30, message = "{hyl.user.surname.error.length}", groups = {RegisterValidation.class, UpdateValidation.class})
+    @Pattern(regexp = "[a-zA-Z -]*", message = "{hyl.user.surname.error.pattern}", groups = {RegisterValidation.class, UpdateValidation.class})
+    @CharacterRepetitionConstraint(message = "{hyl.user.surname.error.characterrepetition}", groups = {RegisterValidation.class, UpdateValidation.class})
+    @NoWhiteSpaceConstraint(message = "{hyl.user.surname.error.nowhitespace}", groups = {RegisterValidation.class, UpdateValidation.class})
     @Column(name = "surname")
     private String surname;
 
-    @NotBlank(message = "{hyl.user.email.error.notblank}", groups = {AuthenticateValidation.class, RegisterValidation.class})
-    @Length(min = 10, max = 50, message = "{hyl.user.email.error.length}", groups = {AuthenticateValidation.class, RegisterValidation.class})
-    @Pattern(regexp = "^[a-z0-9._-]{3,99}@[a-z0-9._-]{3,99}.[a-z]{2,}$", message = "{hyl.user.email.error.pattern}", groups = {AuthenticateValidation.class, RegisterValidation.class})
-    @CharacterRepetitionConstraint(message = "{hyl.user.email.error.characterrepetition}", groups = {AuthenticateValidation.class, RegisterValidation.class})
+    @NotBlank(message = "{hyl.user.email.error.notblank}", groups = {AuthenticateValidation.class, RegisterValidation.class, UpdateValidation.class})
+    @Length(min = 10, max = 50, message = "{hyl.user.email.error.length}", groups = {AuthenticateValidation.class, RegisterValidation.class, UpdateValidation.class})
+    @Pattern(regexp = "^[a-z0-9._-]{3,99}@[a-z0-9._-]{3,99}.[a-z]{2,}$", message = "{hyl.user.email.error.pattern}", groups = {AuthenticateValidation.class, RegisterValidation.class, UpdateValidation.class})
+    @CharacterRepetitionConstraint(message = "{hyl.user.email.error.characterrepetition}", groups = {AuthenticateValidation.class, RegisterValidation.class, UpdateValidation.class})
     @AtomicEmailConstraint(groups = {RegisterValidation.class})
     @Column(name = "email", unique = true)
     private String email;
 
-    @NotBlank(message = "{hyl.user.pseudo.error.notblank}", groups = {RegisterValidation.class})
-    @Length(min = 3, max = 15, message = "{hyl.user.pseudo.error.length}", groups = {RegisterValidation.class})
-    @NoWhiteSpaceConstraint(message = "{hyl.user.pseudo.error.nowhitespace}", groups = {RegisterValidation.class})
-    @CharacterRepetitionConstraint(message = "{hyl.user.pseudo.error.characterrepetition}", groups = {RegisterValidation.class})
+    @NotBlank(message = "{hyl.user.pseudo.error.notblank}", groups = {RegisterValidation.class, UpdateValidation.class})
+    @Length(min = 3, max = 15, message = "{hyl.user.pseudo.error.length}", groups = {RegisterValidation.class, UpdateValidation.class})
+    @NoWhiteSpaceConstraint(message = "{hyl.user.pseudo.error.nowhitespace}", groups = {RegisterValidation.class, UpdateValidation.class})
+    @CharacterRepetitionConstraint(message = "{hyl.user.pseudo.error.characterrepetition}", groups = {RegisterValidation.class, UpdateValidation.class})
     @Column(name = "pseudo")
     private String pseudo;
 
-    @CivilityConstraint(groups = {RegisterValidation.class})
+    @CivilityConstraint(groups = {RegisterValidation.class, UpdateValidation.class})
     @Column(name = "civility")
     private String civility;
 
-    @CellphoneConstraint(groups = {RegisterValidation.class})
+    @CellphoneConstraint(groups = {RegisterValidation.class, UpdateValidation.class})
     @AtomicCellphoneConstraint(groups = {RegisterValidation.class})
     @Column(name = "cellphone", unique = true)
     private String cellphone;
 
-    @NotBlank(message = "{hyl.user.password.error.notblank}", groups = {AuthenticateValidation.class, RegisterValidation.class})
-    @Length(min = 8, max = 25, message = "{hyl.user.password.error.length}", groups = {AuthenticateValidation.class, RegisterValidation.class})
+    @NotBlank(message = "{hyl.user.password.error.notblank}", groups = {AuthenticateValidation.class, RegisterValidation.class, UpdateValidation.class})
+    @Length(min = 8, max = 25, message = "{hyl.user.password.error.length}", groups = {AuthenticateValidation.class, RegisterValidation.class, UpdateValidation.class})
     @Column(name = "password")
     private String password;
 

@@ -41,6 +41,11 @@ public class UserController {
         return !userService.checkAtomicEmail(email);
     }
 
+    @GetMapping(path = "/check-cellphone")
+    public Boolean checkCellphone (@RequestParam String cellphone) {
+        return !userService.checkAtomicCellphone(cellphone);
+    }
+
 
     // ********************************************************* POST
     @PostMapping(path = "/signin")
@@ -65,9 +70,9 @@ public class UserController {
 
 
     // ********************************************************* PATCH
-    @PatchMapping(path = "/{id}")
-    public void updateUser () {
-        // TODO
+    @PatchMapping(path = "/patch-user")
+    public void updateUser (@Autowired HttpServletRequest request, @RequestBody User user) {
+        userService.updateUser(extractIdUserFromHeader(request), user);
     }
 
 
