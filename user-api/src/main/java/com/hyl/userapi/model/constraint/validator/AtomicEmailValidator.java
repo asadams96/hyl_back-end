@@ -1,8 +1,7 @@
 package com.hyl.userapi.model.constraint.validator;
 
-import com.hyl.userapi.dao.UserDao;
 import com.hyl.userapi.model.constraint.AtomicEmailConstraint;
-import com.hyl.userapi.model.constraint.CellphoneConstraint;
+import com.hyl.userapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.validation.ConstraintValidator;
@@ -11,7 +10,7 @@ import javax.validation.ConstraintValidatorContext;
 public class AtomicEmailValidator implements ConstraintValidator<AtomicEmailConstraint, String> {
 
     @Autowired
-    UserDao userDao;
+    UserService userService;
 
     @Override
     public void initialize(AtomicEmailConstraint atomicEmailConstraint) {
@@ -19,6 +18,6 @@ public class AtomicEmailValidator implements ConstraintValidator<AtomicEmailCons
 
     @Override
     public boolean isValid(String field, ConstraintValidatorContext cxt) {
-        return userDao.findByEmail(field).isEmpty();
+        return userService.checkAtomicEmail(field);
     }
 }

@@ -79,6 +79,10 @@ public class UserService {
 
     }
 
+    public Boolean checkAtomicEmail(String email) {
+        return userDao.findByEmail(email).isEmpty();
+    }
+
     private String generatePassword() {
         String upperCaseLetters = RandomStringUtils.random(2, 65, 90, true, true);
         String lowerCaseLetters = RandomStringUtils.random(2, 97, 122, true, true);

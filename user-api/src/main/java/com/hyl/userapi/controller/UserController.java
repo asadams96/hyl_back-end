@@ -37,8 +37,8 @@ public class UserController {
     }
 
     @GetMapping(path = "/check-email")
-    public void checkEmail () {
-        // TODO
+    public Boolean checkEmail (@RequestParam String email) {
+        return !userService.checkAtomicEmail(email);
     }
 
 

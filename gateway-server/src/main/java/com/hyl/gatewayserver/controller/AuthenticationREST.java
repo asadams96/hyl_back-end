@@ -67,6 +67,12 @@ public class AuthenticationREST {
     }
 
 
+    @RequestMapping(value = "/check-email", method = RequestMethod.GET)
+    public Mono<ResponseEntity<Boolean>> checkEmail(@RequestParam String email) {
+        return userService.doCheckEmail(email).map(ResponseEntity::ok);
+    }
+
+
     @ExceptionHandler({WebClientResponseException.class})
     public ResponseEntity<?> handleException(WebClientResponseException exception) {
         if (BadRequest.class.equals(exception.getClass())) {

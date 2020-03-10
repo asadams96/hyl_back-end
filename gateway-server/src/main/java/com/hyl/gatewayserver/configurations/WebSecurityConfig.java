@@ -45,6 +45,7 @@ public class WebSecurityConfig {
                 .pathMatchers("/signin").permitAll()
                 .pathMatchers("/signup").permitAll()
                 .pathMatchers("/forgot-password").permitAll()
+                .pathMatchers("/check-email").permitAll()
                 .anyExchange().authenticated()
                 .and().build();
     }
