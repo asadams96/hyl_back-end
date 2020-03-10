@@ -4,12 +4,16 @@ import com.hyl.userapi.dao.UserDao;
 import com.hyl.userapi.encoder.PBKDF2Encoder;
 import com.hyl.userapi.exception.CustomUnauthorizedException;
 import com.hyl.userapi.model.User;
+import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpSession;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -22,12 +26,14 @@ public class UserService {
     private final UserDao userDao;
     private final PBKDF2Encoder passwordEncoder;
     private final HttpSession httpSession;
+    private final EmailService emailService;
 
     // ********************************************************* Constructor
-    public UserService(UserDao userDao, PBKDF2Encoder passwordEncoder, HttpSession httpSession) {
+    public UserService(UserDao userDao, PBKDF2Encoder passwordEncoder, HttpSession httpSession, EmailService emailService) {
         this.userDao = userDao;
         this.passwordEncoder = passwordEncoder;
         this.httpSession = httpSession;
+        this.emailService = emailService;
     }
 
 
@@ -44,7 +50,7 @@ public class UserService {
                 return String.valueOf(user.getId());
             }
         } else {
-            throw new CustomUnauthorizedException("Utilisateur inconnu");
+            throw new CustomUnauthorizedException("Aucun utilisateur n'est associé à "+email);
         }
     }
 
@@ -58,5 +64,30 @@ public class UserService {
 
     public void disconnectUser(long idUser) {
         httpSession.removeAttribute("user"+idUser);
+    }
+
+    public void forgotPasswordUser(String email) {
+        userDao.findByEmail(email).ifPresentOrElse(user -> {
+            String password = generatePassword();
+            user.setPassword(passwordEncoder.encode(password));
+            userDao.save(user);
+            emailService.sendNewPassword(user, password);
+
+        }, () -> {
+            throw new CustomUnauthorizedException("Aucun utilisateur n'est associé à "+email);
+        });
+
+    }
+
+    private String generatePassword() {
+        String upperCaseLetters = RandomStringUtils.random(2, 65, 90, true, true);
+        String lowerCaseLetters = RandomStringUtils.random(2, 97, 122, true, true);
+        String numbers = RandomStringUtils.randomNumeric(2);
+        String specialChar = RandomStringUtils.random(2, 33, 47, false, false);
+        String totalChars = RandomStringUtils.randomAlphanumeric(2);
+        String combinedChars = upperCaseLetters.concat(lowerCaseLetters).concat(numbers).concat(specialChar).concat(totalChars);
+        List<Character> pwdChars = combinedChars.chars().mapToObj(c -> (char) c).collect(Collectors.toList());
+        Collections.shuffle(pwdChars);
+        return  pwdChars.stream().collect(StringBuilder::new, StringBuilder::append, StringBuilder::append).toString();
     }
 }

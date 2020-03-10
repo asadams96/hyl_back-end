@@ -60,6 +60,13 @@ public class AuthenticationREST {
   }
 
 
+    @PreAuthorize("!(hasRole('USER') or hasRole('ADMIN'))")
+    @RequestMapping(value = "/forgot-password", method = RequestMethod.POST)
+    public Mono<ResponseEntity<?>> forgotPassword(@RequestBody String email) {
+        return userService.doForgotPassword(email).then(Mono.just(ResponseEntity.ok().build()));
+    }
+
+
     @ExceptionHandler({WebClientResponseException.class})
     public ResponseEntity<?> handleException(WebClientResponseException exception) {
         if (BadRequest.class.equals(exception.getClass())) {

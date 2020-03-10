@@ -57,4 +57,8 @@ public class UserService {
         return userApiProxy.signup(admin, signUpRequest);
     }
 
+
+    public Mono<Void> doForgotPassword(String email) {
+        return userApiProxy.forgotPassword(admin, email);
+    }
 }

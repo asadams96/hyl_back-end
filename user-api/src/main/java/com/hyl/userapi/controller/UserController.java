@@ -71,8 +71,8 @@ public class UserController {
     }
 
     @PostMapping(path = "/forgot-password")
-    public void forgotPassword () {
-        // TODO
+    public void forgotPassword (@RequestBody String email) {
+        userService.forgotPasswordUser(email);
     }
 
 
