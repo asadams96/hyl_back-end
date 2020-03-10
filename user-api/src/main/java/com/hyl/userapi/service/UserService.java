@@ -42,19 +42,14 @@ public class UserService {
 
     // ********************************************************* Méthodes
     public String authenticateUser (String email, String password) {
-        Optional<User> optUser = userDao.findByEmail(email);
-
-        if (optUser.isPresent()) {
-            User user = optUser.get();
-            if(!passwordEncoder.matches(password, user.getPassword())) {
-                throw new CustomUnauthorizedException("Couple email/password incorrect");
-            } else {
-                httpSession.setAttribute("user"+user.getId(), user);
-                return String.valueOf(user.getId());
-            }
+        User user = this.getUserByEmail(email);
+        if(!passwordEncoder.matches(password, user.getPassword())) {
+            throw new CustomUnauthorizedException("Couple email/password incorrect");
         } else {
-            throw new CustomNotFoundException("Aucun utilisateur n'est associé à "+email);
+            httpSession.setAttribute("user"+user.getId(), user);
+            return String.valueOf(user.getId());
         }
+
     }
 
     public void registerUser(User user) {
@@ -66,16 +61,11 @@ public class UserService {
     }
 
     public void forgotPasswordUser(String email) {
-        userDao.findByEmail(email).ifPresentOrElse(user -> {
-            String password = generatePassword();
-            user.setPassword(passwordEncoder.encode(password));
-            userDao.save(user);
-            emailService.sendNewPassword(user, password);
-
-        }, () -> {
-            throw new CustomNotFoundException("Aucun utilisateur n'est associé à "+email);
-        });
-
+        User user = this.getUserByEmail(email);
+        String password = generatePassword();
+        user.setPassword(passwordEncoder.encode(password));
+        userDao.save(user);
+        emailService.sendNewPassword(user, password);
     }
 
     public Boolean checkAtomicEmail(String email) {
@@ -90,6 +80,12 @@ public class UserService {
         Optional<User> optUser = userDao.findById(idUser);
         if (optUser.isPresent()) return optUser.get();
         else throw new CustomNotFoundException("Utilisateur introuvable");
+    }
+
+    public User getUserByEmail(String email) {
+        Optional<User> optUser = userDao.findByEmail(email);
+        if (optUser.isPresent()) return optUser.get();
+        throw new CustomNotFoundException("Aucun utilisateur n'est associé à "+email);
     }
 
     public void updateUser(long idUser, User user) {

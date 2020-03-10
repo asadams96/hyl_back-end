@@ -32,14 +32,14 @@ public class SecurityContextRepository implements ServerSecurityContextRepositor
     public Mono<SecurityContext> load(ServerWebExchange swe) {
         ServerHttpRequest request = swe.getRequest();
         String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+        String idUserInHeader = request.getHeaders().getFirst("idUser");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String authToken = authHeader.substring(7);
-            Authentication auth = new UsernamePasswordAuthenticationToken(authToken, authToken);
+            Authentication auth = new UsernamePasswordAuthenticationToken(authToken, idUserInHeader);
             return this.authenticationManager.authenticate(auth).map(SecurityContextImpl::new);
         } else {
             return Mono.empty();
         }
     }
-
 }

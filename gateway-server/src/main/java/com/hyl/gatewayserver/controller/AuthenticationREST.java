@@ -1,8 +1,8 @@
 package com.hyl.gatewayserver.controller;
 
-import com.hyl.gatewayserver.encoder.PBKDF2Encoder;
 import com.hyl.gatewayserver.exception.CustomBadRequestException;
 import com.hyl.gatewayserver.exception.CustomInternalServerErrorException;
+import com.hyl.gatewayserver.exception.CustomNotFoundException;
 import com.hyl.gatewayserver.exception.CustomUnauthorizedException;
 import com.hyl.gatewayserver.model.AuthResponse;
 import com.hyl.gatewayserver.model.SignInRequest;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.reactive.function.client.WebClientResponseException.BadRequest;
 import org.springframework.web.reactive.function.client.WebClientResponseException.InternalServerError;
+import org.springframework.web.reactive.function.client.WebClientResponseException.NotFound;
 import org.springframework.web.reactive.function.client.WebClientResponseException.Unauthorized;
 import reactor.core.publisher.Mono;
 
@@ -27,7 +28,7 @@ public class AuthenticationREST {
     private final UserService userService;
 
     @Autowired
-    public AuthenticationREST(JWTUtil jwtUtil, PBKDF2Encoder passwordEncoder, UserService userService) {
+    public AuthenticationREST(JWTUtil jwtUtil, UserService userService) {
         this.jwtUtil = jwtUtil;
         this.userService = userService;
     }
@@ -82,6 +83,10 @@ public class AuthenticationREST {
         } else if (Unauthorized.class.equals(exception.getClass())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new CustomUnauthorizedException(exception.getMessage()));
+
+        } else if (NotFound.class.equals(exception.getClass())) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new CustomNotFoundException(exception.getMessage()));
 
         } else if (InternalServerError.class.equals(exception.getClass())) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

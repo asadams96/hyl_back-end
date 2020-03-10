@@ -92,4 +92,18 @@ public class UserApiProxy {
                 .onStatus(HttpStatus::isError, ClientResponse::createException)
                 .bodyToMono(Boolean.class);
     }
+
+    public Mono<String> getIdByEmail(User admin, String email) {
+        String url = UriComponentsBuilder.fromPath("/get-id-by-email")
+                .queryParam("email", email)
+                .build()
+                .toString();
+
+        return webClient.get()
+                .uri(url)
+                .header("Authorization", "Bearer "+jwtUtil.generateToken(admin))
+                .retrieve()
+                .onStatus(HttpStatus::isError, ClientResponse::createException)
+                .bodyToMono(String.class);
+    }
 }

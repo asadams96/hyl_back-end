@@ -36,6 +36,11 @@ public class UserController {
         return userService.getUserById(extractIdUserFromHeader(request));
     }
 
+    @GetMapping(path = "/get-id-by-email")
+    public String getIdByEmail(@RequestParam String email) {
+        return String.valueOf(userService.getUserByEmail(email).getId());
+    }
+
     @GetMapping(path = "/check-email")
     public Boolean checkEmail (@RequestParam String email) {
         return !userService.checkAtomicEmail(email);
