@@ -1,10 +1,16 @@
 package com.hyl.loanapi.controller;
 
+import com.hyl.loanapi.exception.CustomBadRequestException;
+import com.hyl.loanapi.model.Loan;
+import com.hyl.loanapi.model.State;
 import com.hyl.loanapi.service.LoanService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RestController
 @RequestMapping(path = "loan")
@@ -27,13 +33,13 @@ public class LoanController {
 
     // ********************************************************* GET
     @GetMapping("/in-progress")
-    public void getLoanInProgress() {
-        // TODO
+    public List<Loan> getLoansInProgress(@Autowired HttpServletRequest request) {
+        return loanService.getLoans(this.extractIdUserFromHeader(request), State.IN_PROGRESS);
     }
 
     @GetMapping("/terminated")
-    public void getLoanTerminated() {
-        // TODO
+    public List<Loan> getLoansTerminated(@Autowired HttpServletRequest request) {
+        return loanService.getLoans(this.extractIdUserFromHeader(request), State.TERMINATED);
     }
 
 
@@ -53,5 +59,20 @@ public class LoanController {
     @DeleteMapping("/delete-loans")
     public void deleteLoan() {
         // TODO
+    }
+
+
+    // ********************************************************* SHARE
+    private long extractIdUserFromHeader (HttpServletRequest request) {
+        String idUserStr = request.getHeader("idUser");
+        if ( idUserStr == null ) {
+            throw new CustomBadRequestException("Aucun utilisateur n'est spécifié dans le header 'idUser' de la requête.");
+        }
+
+        try {
+            return Long.parseLong(idUserStr);
+        } catch (NumberFormatException e) {
+            throw new CustomBadRequestException("L'id de l'utilisateur doit être un nombre.");
+        }
     }
 }
