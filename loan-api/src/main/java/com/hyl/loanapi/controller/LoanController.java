@@ -7,6 +7,7 @@ import com.hyl.loanapi.service.LoanService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,8 +46,9 @@ public class LoanController {
 
     // ********************************************************* POST
     @PostMapping("/add-loan")
-    public void addLoan() {
-        // TODO
+    public Loan addLoan(@Autowired HttpServletRequest request,
+                        @Validated(Loan.AddValidation.class) @RequestBody Loan loan) {
+        return loanService.addLoan(this.extractIdUserFromHeader(request), loan);
     }
 
     @PostMapping("/close-loans")

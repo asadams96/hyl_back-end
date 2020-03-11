@@ -1,14 +1,23 @@
 package com.hyl.loanapi.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.hyl.loanapi.model.constraint.CharacterRepetitionConstraint;
+import com.hyl.loanapi.model.constraint.InformationConstraint;
+import com.hyl.loanapi.model.constraint.NoWhiteSpaceConstraint;
+import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Entity
 @Table(name = "loan")
 public class Loan {
+
+    //************************************************** GROUPE DE VALIDATION
+    public interface AddValidation {}
+
 
     //************************************************** PARAMETRES
     @Id
@@ -19,25 +28,38 @@ public class Loan {
     @Column(name = "id_usager")
     private Long idOwner;
 
+    @NotNull(message = "{hyl.loan.startdate.error.notnull}", groups = {AddValidation.class})
+    @PastOrPresent(message = "{hyl.loan.startdate.error.pastorpresent}", groups = {AddValidation.class})
     @Column(name = "start_date")
     private Date startDate;
 
+    @Null(message = "{hyl.loan.enddate.error.null}", groups = {AddValidation.class})
     @Column(name = "end_date")
     private Date endDate;
 
+    // Todo Vérifier que la référence existe bien lorsque item-api opérationnel
+    @NotBlank(message = "{hyl.loan.reference.error.notblank}", groups = {AddValidation.class})
+    @Length(min = 5, max = 15, message = "{hyl.loan.reference.error.length}", groups = {AddValidation.class})
     @Column(name = "reference")
     private String reference;
 
+    @NoWhiteSpaceConstraint(message = "{hyl.loan.beneficiary.error.nowhitespace}", groups = {AddValidation.class})
+    @CharacterRepetitionConstraint(message = "{hyl.loan.beneficiary.error.characterrepetition}", groups = {AddValidation.class})
+    @NotBlank(message = "{hyl.loan.beneficiary.error.notblank}", groups = {AddValidation.class})
+    @Length(min = 5, max = 15, message = "{hyl.loan.beneficiary.error.length}", groups = {AddValidation.class})
     @Column(name = "beneficiary")
     private String beneficiary;
 
+    @InformationConstraint(groups = {AddValidation.class})
     @Column(name = "information")
     private String information;
 
+    @Future(message = "{hyl.loan.reminder.error.future}", groups = {AddValidation.class})
     @Column(name = "reminder")
     private Date reminder;
 
-    @Transient // Todo à récupérer
+    // Todo Récupérer la valeur lorsque item-api opérationnel
+    @Transient
     private String comment;
 
     @Transient @JsonIgnore

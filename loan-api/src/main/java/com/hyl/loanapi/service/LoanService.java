@@ -3,6 +3,8 @@ package com.hyl.loanapi.service;
 import com.hyl.loanapi.dao.LoanDao;
 import com.hyl.loanapi.model.Loan;
 import com.hyl.loanapi.model.State;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +13,10 @@ import java.util.List;
 
 @Service
 public class LoanService {
+
+    // ********************************************************* logger
+    private final Logger logger = LoggerFactory.getLogger(LoanService.class);
+
 
     // ********************************************************* Bean
     private final LoanDao loanDao;
@@ -33,5 +39,10 @@ public class LoanService {
             default:
                 return new ArrayList<>();
         }
+    }
+
+    public Loan addLoan(long idOwner, Loan loan) {
+        loan.setIdOwner(idOwner);
+        return this.loanDao.save(loan);
     }
 }
