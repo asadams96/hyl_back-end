@@ -1,9 +1,7 @@
 package com.hyl.loanapi.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.hyl.loanapi.model.constraint.CharacterRepetitionConstraint;
-import com.hyl.loanapi.model.constraint.InformationConstraint;
-import com.hyl.loanapi.model.constraint.NoWhiteSpaceConstraint;
+import com.hyl.loanapi.model.constraint.*;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -13,16 +11,21 @@ import java.util.Date;
 
 @Entity
 @Table(name = "loan")
+@AlreadyClosedConstraint(groups = {Loan.CloseValidation.class})
+@IdOwnerConstraint(groups = {Loan.CloseValidation.class})
+@EndDateConstraint(groups = Loan.CloseValidation.class)
 public class Loan {
 
     //************************************************** GROUPE DE VALIDATION
     public interface AddValidation {}
+    public interface CloseValidation {}
 
 
     //************************************************** PARAMETRES
     @Id
     @Column(name = "id_loan")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @NotNull(message = "{hyl.loan.id.error.notnull}", groups = {CloseValidation.class})
     private Long id;
 
     @Column(name = "id_usager")
@@ -33,11 +36,13 @@ public class Loan {
     @Column(name = "start_date")
     private Date startDate;
 
+    @NotNull(message = "{hyl.loan.enddate.error.notnull}", groups = {CloseValidation.class})
+    @PastOrPresent(message = "{hyl.loan.enddate.error.pastorpresent}", groups = {CloseValidation.class})
     @Null(message = "{hyl.loan.enddate.error.null}", groups = {AddValidation.class})
     @Column(name = "end_date")
     private Date endDate;
 
-    // Todo Vérifier que la référence existe bien lorsque item-api opérationnel
+    // Todo Vérifier que la référence existe bien lorsque item-api opérationnel pour un 'add-loan'
     @NotBlank(message = "{hyl.loan.reference.error.notblank}", groups = {AddValidation.class})
     @Length(min = 5, max = 15, message = "{hyl.loan.reference.error.length}", groups = {AddValidation.class})
     @Column(name = "reference")
@@ -59,6 +64,7 @@ public class Loan {
     private Date reminder;
 
     // Todo Récupérer la valeur lorsque item-api opérationnel
+    // Todo Enregistrer la valeur de comment si renseigné lors d'un 'close-loan'
     @Transient
     private String comment;
 
@@ -164,7 +170,7 @@ public class Loan {
         return "Loan{" +
                 "id=" + id +
                 ", idOwner=" + idOwner +
-                ", startDate=" + simpleDateFormat.format(startDate) +
+                ", startDate=" + (startDate != null ? simpleDateFormat.format(startDate) : null) +
                 ", endDate=" + (endDate != null ? simpleDateFormat.format(endDate) : null) +
                 ", reference='" + reference + '\'' +
                 ", beneficiary='" + beneficiary + '\'' +
