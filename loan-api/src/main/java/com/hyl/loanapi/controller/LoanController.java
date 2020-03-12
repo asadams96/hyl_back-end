@@ -1,6 +1,7 @@
 package com.hyl.loanapi.controller;
 
 import com.hyl.loanapi.exception.CustomBadRequestException;
+import com.hyl.loanapi.exception.CustomNotFoundException;
 import com.hyl.loanapi.model.Loan;
 import com.hyl.loanapi.model.State;
 import com.hyl.loanapi.model.validation.ValidCloseLoansListValidation;
@@ -8,6 +9,8 @@ import com.hyl.loanapi.service.LoanService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -67,6 +70,25 @@ public class LoanController {
 
 
     // ********************************************************* SHARE
+    @ExceptionHandler(value = {CustomBadRequestException.class, CustomNotFoundException.class})
+    public ResponseEntity<?> handle(RuntimeException exception) {
+        if (exception.getCause() != null) exception = (RuntimeException) exception.getCause();
+        
+        if (exception.getClass().equals(CustomBadRequestException.class)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body((exception.getCause() != null &&  exception.getCause().getMessage() != null
+                            ? exception.getCause().getMessage() : exception.getMessage()));
+        } else if (exception.getClass().equals(CustomNotFoundException.class)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body((exception.getCause() != null &&  exception.getCause().getMessage() != null
+                            ? exception.getCause().getMessage() : exception.getMessage()));
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body((exception.getCause() != null &&  exception.getCause().getMessage() != null
+                            ? exception.getCause().getMessage() : exception.getMessage()));
+        }
+    }
+
     public static long extractIdUserFromHeader (HttpServletRequest request) {
         String idUserStr = request.getHeader("idUser");
         if ( idUserStr == null ) {
