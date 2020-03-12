@@ -55,15 +55,14 @@ public class LoanController {
     @PostMapping("/close-loans")
     public void closeLoan(@Validated(Loan.CloseValidation.class) @RequestBody ValidCloseLoansListValidation loans) {
         // Todo S'il existe, le commentaire du prêt doit être enregistré auprès de item-api lorsqu'il sera opérationnel
-        loans.forEach(loan -> logger.info(loan.toString()));
         loans.forEach(loanService::closeLoan);
     }
 
 
     // ********************************************************* DELETE
     @DeleteMapping("/delete-loans")
-    public void deleteLoan() {
-        // TODO
+    public void deleteLoan(@Validated(Loan.DeleteValidation.class) @RequestBody ValidCloseLoansListValidation loans) {
+       loans.forEach(loanService::deleteLoan);
     }
 
 

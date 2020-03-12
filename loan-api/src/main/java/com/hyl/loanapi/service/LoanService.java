@@ -63,4 +63,8 @@ public class LoanService {
         loanDao.save(loan);
 
     }
+
+    public void deleteLoan(Loan loan) {
+        loanDao.delete(loan);
+    }
 }

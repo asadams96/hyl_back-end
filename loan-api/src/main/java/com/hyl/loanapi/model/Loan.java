@@ -12,20 +12,21 @@ import java.util.Date;
 @Entity
 @Table(name = "loan")
 @AlreadyClosedConstraint(groups = {Loan.CloseValidation.class})
-@IdOwnerConstraint(groups = {Loan.CloseValidation.class})
+@IdOwnerConstraint(groups = {Loan.CloseValidation.class, Loan.DeleteValidation.class})
 @EndDateConstraint(groups = Loan.CloseValidation.class)
 public class Loan {
 
     //************************************************** GROUPE DE VALIDATION
     public interface AddValidation {}
     public interface CloseValidation {}
+    public interface DeleteValidation {}
 
 
     //************************************************** PARAMETRES
     @Id
     @Column(name = "id_loan")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @NotNull(message = "{hyl.loan.id.error.notnull}", groups = {CloseValidation.class})
+    @NotNull(message = "{hyl.loan.id.error.notnull}", groups = {CloseValidation.class, DeleteValidation.class})
     private Long id;
 
     @Column(name = "id_usager")
