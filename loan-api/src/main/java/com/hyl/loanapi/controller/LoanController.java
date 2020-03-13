@@ -73,7 +73,7 @@ public class LoanController {
     @ExceptionHandler(value = {CustomBadRequestException.class, CustomNotFoundException.class})
     public ResponseEntity<?> handle(RuntimeException exception) {
         if (exception.getCause() != null) exception = (RuntimeException) exception.getCause();
-        
+
         if (exception.getClass().equals(CustomBadRequestException.class)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body((exception.getCause() != null &&  exception.getCause().getMessage() != null
