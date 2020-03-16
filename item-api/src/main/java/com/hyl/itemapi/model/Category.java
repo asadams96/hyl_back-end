@@ -16,14 +16,15 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(targetEntity = Category.class, mappedBy = "categoryParent", fetch = FetchType.LAZY)
+    @OneToMany(targetEntity = Category.class, mappedBy = "categoryParent", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Category> categories;
 
-    @OneToMany(targetEntity = Item.class, mappedBy = "category", fetch = FetchType.LAZY)
+    @OneToMany(targetEntity = Item.class, mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Item> items;
 
-    @JsonIgnore
     @ManyToOne(targetEntity = Category.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_category_parent")
+    @JsonIgnore
     private Category categoryParent;
 
 

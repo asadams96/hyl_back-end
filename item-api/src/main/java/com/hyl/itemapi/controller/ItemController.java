@@ -1,12 +1,26 @@
 package com.hyl.itemapi.controller;
 
+import com.hyl.itemapi.exception.CustomBadRequestException;
+import com.hyl.itemapi.model.Item;
+import com.hyl.itemapi.model.validation.MultipartFileListValidation;
 import com.hyl.itemapi.service.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RestController
 @RequestMapping(path = "item")
 public class ItemController {
+
+
+    //************************************************** Logger
+    private Logger logger = LoggerFactory.getLogger(ItemController.class);
 
 
     //************************************************** SERVICES
@@ -63,13 +77,28 @@ public class ItemController {
     }
 
     @PostMapping("/add-item")
-    public void addItem() {
-        // TODO
+    public Item addItem(@RequestPart(value = "files") List<MultipartFile> files,
+                        @RequestPart(value = "data") Object obj,
+                        @Autowired HttpServletRequest request) {
+
+        // Validation des images liées au seul et unique subitem obligatoire lors de l'ajout d'un item
+        MultipartFileListValidation.validMultipartFileList(files);
+
+        // Conversion en JSON de l'objet JSON reçu
+        JSONObject data = (JSONObject) JSONObject.wrap(obj);
+
+        // Appel du service item pour la validation des données puis l'ajout en bdd
+        return itemService.addItem(data.optString("name"),
+                data.optString("description"),
+                data.optLong("idCategory"),
+                data.optString("reference"),
+                extractIdUserFromHeader(request),
+                files);
     }
 
     @PostMapping("/add-subitem")
     public void addSubItem() {
-        // TODO
+        // TODO second
     }
 
     @PostMapping("/add-tracking-sheet")
@@ -128,5 +157,20 @@ public class ItemController {
     @DeleteMapping("/delete-tracking-sheets")
     public void deleteTrackingSheets() {
         // TODO
+    }
+
+
+    //************************************************** SHARE
+    public static long extractIdUserFromHeader (HttpServletRequest request) {
+        String idUserStr = request.getHeader("idUser");
+        if ( idUserStr == null ) {
+            throw new CustomBadRequestException("Aucun utilisateur n'est spécifié dans le header 'idUser' de la requête.");
+        }
+
+        try {
+            return Long.parseLong(idUserStr);
+        } catch (NumberFormatException e) {
+            throw new CustomBadRequestException("L'id de l'utilisateur doit être un nombre.");
+        }
     }
 }

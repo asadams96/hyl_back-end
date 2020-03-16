@@ -5,9 +5,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 
 @Configuration
-public class MsgValidationConfig {
+public class ValidationConfig {
+
+    @Bean
+    public MethodValidationPostProcessor getMethodValidationPostProcessor(){
+        MethodValidationPostProcessor processor = new MethodValidationPostProcessor();
+        processor.setValidator(this.getValidator());
+        return processor;
+    }
 
     @Bean
     public MessageSource messageSource() {

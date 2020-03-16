@@ -1,6 +1,13 @@
 package com.hyl.itemapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.hyl.itemapi.model.constraint.AtomicItemNameConstraint;
+import org.hibernate.validator.constraints.Length;
+
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Null;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 @Entity
@@ -8,23 +15,38 @@ import java.util.List;
 public class Item {
 
 
+    //************************************************** GROUPE DE VALIDATION
+    public interface AddValidation {}
+
+
     //************************************************** PARAMETRES
     @Id
     @Column(name = "id_item")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Null(message = "{hyl.item.id.error.null}", groups = {AddValidation.class})
     private Long id;
 
+    @NotBlank(message = "{hyl.item.name.error.notblank}", groups = {AddValidation.class})
+    @Length(min = 3, max = 15, message = "{hyl.item.name.error.length}", groups = {AddValidation.class})
+    @AtomicItemNameConstraint(groups = {AddValidation.class})
     @Column(name = "name")
     private String name;
 
+    @Length(max = 50, message = "{hyl.item.description.error.length}", groups = {AddValidation.class})
     @Column(name = "description")
     private String description;
 
     @ManyToOne(targetEntity = Category.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_category")
+    @JsonIgnore
     private Category category;
 
-    @OneToMany(targetEntity = SubItem.class, mappedBy = "item", fetch = FetchType.LAZY)
+    @Size(min = 1, message = "{hyl.item.subitems.error.size}", groups = {AddValidation.class})
+    @OneToMany(targetEntity = SubItem.class, mappedBy = "item", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<SubItem> subItems;
+
+    @Column(name = "id_usager")
+    private Long idUser;
 
 
     //************************************************** GETTERS / SETTERS
@@ -68,6 +90,14 @@ public class Item {
         this.subItems = subItems;
     }
 
+    public Long getIdUser() {
+        return idUser;
+    }
+
+    public void setIdUser(Long idUser) {
+        this.idUser = idUser;
+    }
+
     //************************************************** TO STRING
     @Override
     public String toString() {
@@ -77,6 +107,7 @@ public class Item {
                 ", description='" + description + '\'' +
                 ", category=" + category +
                 ", subItems=" + subItems +
+                ", idUser=" + idUser +
                 '}';
     }
 }

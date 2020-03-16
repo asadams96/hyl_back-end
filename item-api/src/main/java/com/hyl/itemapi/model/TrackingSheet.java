@@ -24,6 +24,8 @@ public class TrackingSheet {
     private String comment;
 
     @ManyToOne(targetEntity = SubItem.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_subitem")
+    @JsonIgnore
     private SubItem subItem;
 
     @Transient @JsonIgnore
