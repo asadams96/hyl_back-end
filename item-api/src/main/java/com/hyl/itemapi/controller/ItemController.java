@@ -63,8 +63,8 @@ public class ItemController {
     }
 
     @GetMapping("/")
-    public void getMainCategory() {
-        // TODO
+    public Category getMainCategory(@Autowired HttpServletRequest request) {
+        return CategoryService.getMainCategory(extractIdUserFromHeader(request));
     }
 
 

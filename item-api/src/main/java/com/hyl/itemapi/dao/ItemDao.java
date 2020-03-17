@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface ItemDao extends JpaRepository<Item, Long> {
     Optional<Item> findByName(String name);
     List<Item> findAllByIdUser(long idUser);
+    List<Item> findAllByIdUserAndCategoryIsNull(long idUser);
 }

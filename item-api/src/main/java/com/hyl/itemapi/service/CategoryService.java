@@ -28,6 +28,13 @@ public class CategoryService {
 
 
     //************************************************** METHODES
+    public static Category getMainCategory(long idUser) {
+        Category category = new Category();
+        category.setCategories(categoryDao.findAllByIdUserAndCategoryParentIsNull(idUser));
+        category.setItems(ItemService.getItemsWihtoutCategoryByIdUser(idUser));
+        return category;
+    }
+
     public static Category getCategoryById(long idCategory) {
         Optional<Category> optCategory = categoryDao.findById(idCategory);
         if (optCategory.isPresent()) return optCategory.get();

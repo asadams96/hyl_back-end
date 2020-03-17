@@ -34,6 +34,10 @@ public class ItemService {
         return itemDao.findAllByIdUser(id);
     }
 
+    protected static List<Item> getItemsWihtoutCategoryByIdUser(long id) {
+        return itemDao.findAllByIdUserAndCategoryIsNull(id);
+    }
+
     public Item addItem(String name, String description, long idCategory,
                         String reference, long idUser, List<MultipartFile> files) {
 
