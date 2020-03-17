@@ -1,6 +1,7 @@
 package com.hyl.itemapi.service;
 
 import com.hyl.itemapi.dao.SubItemDao;
+import com.hyl.itemapi.exception.CustomNotFoundException;
 import com.hyl.itemapi.model.Item;
 import com.hyl.itemapi.model.SubItem;
 import com.hyl.itemapi.model.validation.CustomValidator;
@@ -12,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -67,5 +69,11 @@ public class SubItemService {
 
     public static boolean checkAtomicRef(String reference) {
         return subItemDao.findByReference(reference).isEmpty();
+    }
+
+    public static SubItem getSubItemById(long id) {
+        Optional<SubItem> optSubItem = subItemDao.findById(id);
+        if ( optSubItem.isPresent() ) return optSubItem.get();
+        else throw new CustomNotFoundException("L'objet SubItem avec pour id="+id+" n'a pas été trouvé.");
     }
 }

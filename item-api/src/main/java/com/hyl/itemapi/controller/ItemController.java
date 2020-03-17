@@ -123,8 +123,12 @@ public class ItemController {
     }
 
     @PostMapping("/add-tracking-sheet")
-    public void addTrackingSheet() {
-        // TODO
+    public SubItem addTrackingSheet(@RequestBody HashMap<String, String> hashMap) {
+        String comment = hashMap.get("comment");
+        Long idSubItem = hashMap.get("idSubItem") != null ? Long.parseLong(hashMap.get("idSubItem")) : null;
+        if (idSubItem == null) throw new CustomBadRequestException("Le paramètre idSubItem ne peut pas être null");
+        TrackingSheetService.addTrackingSheet(comment, idSubItem);
+        return SubItemService.getSubItemById(idSubItem);
     }
 
 

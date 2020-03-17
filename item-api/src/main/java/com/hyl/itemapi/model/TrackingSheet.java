@@ -1,8 +1,14 @@
 package com.hyl.itemapi.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.hyl.itemapi.model.constraint.IdOwnerConstraint;
+import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+import javax.validation.constraints.PastOrPresent;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -11,18 +17,28 @@ import java.util.Date;
 public class TrackingSheet {
 
 
+    //************************************************** GROUPE DE VALIDATION
+    public interface AddValidation {}
+
+
     //************************************************** PARAMETRES
     @Id
     @Column(name = "id_tracking_sheet")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Null(message = "{hyl.trackingsheet.id.error.null}", groups = {AddValidation.class})
     private Long id;
 
+    @PastOrPresent(message = "{hyl.trackingsheet.date.error.pastorpresent}", groups = {AddValidation.class})
     @Column(name = "date")
     private Date date;
 
+    @NotBlank(message = "{hyl.trackingsheet.comment.error.notblank}", groups = {AddValidation.class})
+    @Length(min = 15, max = 150, message = "{hyl.trackingsheet.comment.error.length}", groups = {AddValidation.class})
     @Column(name = "comment")
     private String comment;
 
+    @IdOwnerConstraint(groups = {AddValidation.class})
+    @NotNull(message = "{hyl.trackingsheet.subitem.error.notnull}", groups = {AddValidation.class})
     @ManyToOne(targetEntity = SubItem.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "id_subitem")
     @JsonIgnore
@@ -79,7 +95,7 @@ public class TrackingSheet {
                 "id=" + id +
                 ", date=" + (date != null ? simpleDateFormat.format(date) : null) +
                 ", comment='" + comment + '\'' +
-                ", subItem=" + subItem +
+                ", subItem.id=" + (subItem != null ? subItem.getId() : null) +
                 '}';
     }
 }
