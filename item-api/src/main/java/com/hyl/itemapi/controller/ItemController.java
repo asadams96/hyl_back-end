@@ -1,6 +1,7 @@
 package com.hyl.itemapi.controller;
 
 import com.hyl.itemapi.exception.CustomBadRequestException;
+import com.hyl.itemapi.model.Category;
 import com.hyl.itemapi.model.Item;
 import com.hyl.itemapi.model.SubItem;
 import com.hyl.itemapi.model.validation.MultipartFileListValidation;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -68,8 +70,11 @@ public class ItemController {
 
     //************************************************** POST
     @PostMapping("/add-child-category")
-    public void addChildCategory() {
-        // TODO
+    public Category addChildCategory(@RequestBody HashMap<String, String> hashMap,
+                                     @Autowired HttpServletRequest request) {
+        String name = hashMap.get("name");
+        Long idParent = hashMap.get("idParent") != null ? Long.parseLong(hashMap.get("idParent")) : null;
+        return categoryService.addChildCategory(name, idParent, extractIdUserFromHeader(request));
     }
 
     @PostMapping("/add-parent-category")

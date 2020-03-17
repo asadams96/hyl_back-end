@@ -1,8 +1,13 @@
 package com.hyl.itemapi.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.hyl.itemapi.model.constraint.AtomicCategoryNameConstraint;
+import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Null;
+import javax.validation.constraints.Size;
 import java.util.List;
 
 @Entity
@@ -10,15 +15,31 @@ import java.util.List;
 public class Category {
 
 
+    //************************************************** GROUPE DE VALIDATION
+    public interface AddChildValidation {}
+
+
     //************************************************** PARAMETRES
     @Id
     @Column(name = "id_category")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Null(message = "{hyl.category.id.error.null}", groups = {AddChildValidation.class})
     private Long id;
 
+    @NotBlank(message = "{hyl.category.name.error.notblank}", groups = {AddChildValidation.class})
+    @Length(min = 3, max = 15, message = "{hyl.category.name.error.length}", groups = {AddChildValidation.class})
+    @AtomicCategoryNameConstraint(groups = {AddChildValidation.class})
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "id_usager")
+    private Long idUser;
+
+    @Size(max = 0, message = "{hyl.category.categories.error.size}", groups = {AddChildValidation.class})
     @OneToMany(targetEntity = Category.class, mappedBy = "categoryParent", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Category> categories;
 
+    @Size(max = 0, message = "{hyl.category.items.error.size}", groups = {AddChildValidation.class})
     @OneToMany(targetEntity = Item.class, mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Item> items;
 
@@ -35,6 +56,22 @@ public class Category {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Long getIdUser() {
+        return idUser;
+    }
+
+    public void setIdUser(Long idUser) {
+        this.idUser = idUser;
     }
 
     public List<Category> getCategories() {
@@ -67,9 +104,11 @@ public class Category {
     public String toString() {
         return "Category{" +
                 "id=" + id +
+                ", name='" + name +
+                ", idUser=" + idUser +
                 ", categories=" + categories +
                 ", items=" + items +
-                ", categoryParent=" + categoryParent +
+                ", categoryParent.id=" + categoryParent.getId() +
                 '}';
     }
 }
