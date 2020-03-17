@@ -30,6 +30,10 @@ public class ItemService {
     }
 
     //************************************************** METHODES
+    public static List<Item> getItemsByIdUser(long id) {
+        return itemDao.findAllByIdUser(id);
+    }
+
     public Item addItem(String name, String description, long idCategory,
                         String reference, long idUser, List<MultipartFile> files) {
 

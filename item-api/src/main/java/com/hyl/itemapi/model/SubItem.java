@@ -3,6 +3,7 @@ package com.hyl.itemapi.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hyl.itemapi.model.constraint.AtomicSubItemRefConstraint;
 import com.hyl.itemapi.model.constraint.IdOwnerConstraint;
+import com.hyl.itemapi.model.constraint.MaxSubItemConstraint;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -12,6 +13,7 @@ import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 import java.util.List;
 
+@MaxSubItemConstraint(groups = {SubItem.AddValidation.class})
 @Entity
 @Table(name = "subitem")
 public class SubItem {
