@@ -54,12 +54,12 @@ public class ItemController {
 
     @GetMapping("/check-item-name")
     public boolean checkAtomicItemName(@RequestParam String name) {
-        return !itemService.checkAtomicName(name);
+        return !ItemService.checkAtomicName(name);
     }
 
     @GetMapping("/check-sub-ref")
     public boolean checkAtomicSubItemRef(@RequestParam String reference) {
-        return !subItemService.checkAtomicRef(reference);
+        return !SubItemService.checkAtomicRef(reference);
     }
 
     @GetMapping("/")

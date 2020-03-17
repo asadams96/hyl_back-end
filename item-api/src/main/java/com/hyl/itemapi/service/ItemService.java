@@ -73,7 +73,7 @@ public class ItemService {
         item.getSubItems().forEach(SubItemService::validAddSubItem);
     }
 
-    public boolean checkAtomicName(String name) {
+    public static boolean checkAtomicName(String name) {
         return itemDao.findByName(name).isEmpty();
     }
 

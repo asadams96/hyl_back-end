@@ -19,13 +19,13 @@ public class SubItemService {
 
 
     //************************************************** DAO
-    private SubItemDao subItemDao;
+    private static SubItemDao subItemDao;
 
 
     //************************************************** CONSTRUCTEUR
     @Autowired
     public SubItemService(SubItemDao subItemDao) {
-        this.subItemDao = subItemDao;
+        SubItemService.subItemDao = subItemDao;
     }
 
 
@@ -65,7 +65,7 @@ public class SubItemService {
         }
     }
 
-    public boolean checkAtomicRef(String reference) {
+    public static boolean checkAtomicRef(String reference) {
         return subItemDao.findByReference(reference).isEmpty();
     }
 }
