@@ -2,6 +2,7 @@ package com.hyl.itemapi.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hyl.itemapi.model.constraint.AtomicSubItemRefConstraint;
+import com.hyl.itemapi.model.constraint.IdOwnerConstraint;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -40,6 +41,7 @@ public class SubItem {
     @OneToMany(targetEntity = Picture.class, mappedBy = "subItem", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Picture> urlImages;
 
+    @IdOwnerConstraint(groups = {AddValidation.class})
     @NotNull(message = "{hyl.subitem.item.error.notnull}", groups = {AddValidation.class})
     @ManyToOne(targetEntity = Item.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "id_item")

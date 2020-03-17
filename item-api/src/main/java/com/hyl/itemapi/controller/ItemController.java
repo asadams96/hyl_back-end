@@ -2,6 +2,7 @@ package com.hyl.itemapi.controller;
 
 import com.hyl.itemapi.exception.CustomBadRequestException;
 import com.hyl.itemapi.model.Item;
+import com.hyl.itemapi.model.SubItem;
 import com.hyl.itemapi.model.validation.MultipartFileListValidation;
 import com.hyl.itemapi.service.*;
 import org.slf4j.Logger;
@@ -97,8 +98,19 @@ public class ItemController {
     }
 
     @PostMapping("/add-subitem")
-    public void addSubItem() {
-        // TODO second
+    public SubItem addSubItem(@RequestPart(value = "files") List<MultipartFile> files,
+                              @RequestPart(value = "data") Object obj) {
+
+        // Validation des images liées au seul et unique subitem obligatoire lors de l'ajout d'un subitem
+        MultipartFileListValidation.validMultipartFileList(files);
+
+        // Conversion en JSON de l'objet JSON reçu
+        JSONObject data = (JSONObject) JSONObject.wrap(obj);
+
+        // Appel du service subitem pour la validation des données puis l'ajout en bdd
+        return subItemService.addSubItem(data.optString("reference"),
+                data.optLong("idItem"),
+                files);
     }
 
     @PostMapping("/add-tracking-sheet")

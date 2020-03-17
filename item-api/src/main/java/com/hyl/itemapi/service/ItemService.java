@@ -1,6 +1,7 @@
 package com.hyl.itemapi.service;
 
 import com.hyl.itemapi.dao.ItemDao;
+import com.hyl.itemapi.exception.CustomNotFoundException;
 import com.hyl.itemapi.model.Item;
 import com.hyl.itemapi.model.validation.CustomValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -18,13 +20,13 @@ public class ItemService {
 
 
     //************************************************** DAO
-    private ItemDao itemDao;
+    private static ItemDao itemDao;
 
 
     //************************************************** CONSTRUCTEUR
     @Autowired
     public ItemService(ItemDao itemDao) {
-        this.itemDao = itemDao;
+        ItemService.itemDao = itemDao;
     }
 
     //************************************************** METHODES
@@ -69,5 +71,11 @@ public class ItemService {
 
     public boolean checkAtomicName(String name) {
         return itemDao.findByName(name).isEmpty();
+    }
+
+    protected static Item getItemById(long id) {
+        Optional<Item> optItem = itemDao.findById(id);
+        if ( optItem.isPresent() ) return optItem.get();
+        else throw new CustomNotFoundException("L'objet Item avec pour id="+id+" n'a pas été trouvé.");
     }
 }

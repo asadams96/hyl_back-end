@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 
 @Service
@@ -29,6 +30,15 @@ public class SubItemService {
 
 
     //************************************************** METHODES
+    public SubItem addSubItem(String reference, long idItem, List<MultipartFile> files) {
+        SubItem subItem = buildSubItem( ItemService.getItemById(idItem), reference, files );
+        validAddSubItem(subItem);
+        subItemDao.save(subItem);
+        Hashtable<String, String> urlTable =  FileService.saveMultipartFile(subItem, files);
+        PictureService.majUrlPicture(urlTable);
+        return subItem;
+    }
+
     protected static SubItem buildSubItem(Item item, String reference, List<MultipartFile> files) {
 
         // Construction du subitem
