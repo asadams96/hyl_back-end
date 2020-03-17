@@ -51,13 +51,13 @@ public class ItemController {
     }
 
     @GetMapping("/check-item-name")
-    public void checkAtomicItemName() {
-        // TODO
+    public boolean checkAtomicItemName(@RequestParam String name) {
+        return !itemService.checkAtomicName(name);
     }
 
     @GetMapping("/check-sub-ref")
-    public void checkAtomicSubItemRef() {
-        // TODO
+    public boolean checkAtomicSubItemRef(@RequestParam String reference) {
+        return !subItemService.checkAtomicRef(reference);
     }
 
     @GetMapping("/")
