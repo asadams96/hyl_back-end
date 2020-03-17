@@ -48,8 +48,8 @@ public class ItemController {
 
     //************************************************** GET
     @GetMapping("/check-category-name")
-    public void checkAtomicCategoryName() {
-        // TODO
+    public boolean checkAtomicCategoryName(@RequestParam String name) {
+        return !CategoryService.checkAtomicName(name);
     }
 
     @GetMapping("/check-item-name")
