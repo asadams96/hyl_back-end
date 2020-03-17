@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
@@ -39,6 +40,19 @@ public class CategoryService {
         category.setIdUser(idUser);
         category.setCategoryParent( idParent != null ? getCategoryById(idParent) : null);
         CustomValidator.validate(category, Category.AddChildValidation.class);
+        return categoryDao.save(category);
+    }
+
+    public Category addParentCategory(String name, long idChild, Long idUser) {
+        Category category = new Category();
+        Category oldParentCategory = getCategoryById(idChild);
+        category.setName(name);
+        category.setIdUser(idUser);
+        category.setCategoryParent(oldParentCategory.getCategoryParent());
+        category.setCategories(new ArrayList<>());
+        category.getCategories().add(oldParentCategory);
+        CustomValidator.validate(category, Category.AddParentValidation.class);
+        oldParentCategory.setCategoryParent(category);
         return categoryDao.save(category);
     }
 

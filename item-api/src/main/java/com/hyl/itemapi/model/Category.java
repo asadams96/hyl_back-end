@@ -17,18 +17,19 @@ public class Category {
 
     //************************************************** GROUPE DE VALIDATION
     public interface AddChildValidation {}
+    public interface AddParentValidation {}
 
 
     //************************************************** PARAMETRES
     @Id
     @Column(name = "id_category")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Null(message = "{hyl.category.id.error.null}", groups = {AddChildValidation.class})
+    @Null(message = "{hyl.category.id.error.null}", groups = {AddChildValidation.class, AddParentValidation.class})
     private Long id;
 
-    @NotBlank(message = "{hyl.category.name.error.notblank}", groups = {AddChildValidation.class})
-    @Length(min = 3, max = 15, message = "{hyl.category.name.error.length}", groups = {AddChildValidation.class})
-    @AtomicCategoryNameConstraint(groups = {AddChildValidation.class})
+    @NotBlank(message = "{hyl.category.name.error.notblank}", groups = {AddChildValidation.class, AddParentValidation.class})
+    @Length(min = 3, max = 15, message = "{hyl.category.name.error.length}", groups = {AddChildValidation.class, AddParentValidation.class})
+    @AtomicCategoryNameConstraint(groups = {AddChildValidation.class, AddParentValidation.class})
     @Column(name = "name")
     private String name;
 
@@ -36,10 +37,11 @@ public class Category {
     private Long idUser;
 
     @Size(max = 0, message = "{hyl.category.categories.error.size}", groups = {AddChildValidation.class})
+    @Size(min=1, max = 1, message = "{hyl.category.categories.error.size}", groups = {AddParentValidation.class})
     @OneToMany(targetEntity = Category.class, mappedBy = "categoryParent", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Category> categories;
 
-    @Size(max = 0, message = "{hyl.category.items.error.size}", groups = {AddChildValidation.class})
+    @Size(max = 0, message = "{hyl.category.items.error.size}", groups = {AddChildValidation.class, AddParentValidation.class})
     @OneToMany(targetEntity = Item.class, mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Item> items;
 
@@ -108,7 +110,7 @@ public class Category {
                 ", idUser=" + idUser +
                 ", categories=" + categories +
                 ", items=" + items +
-                ", categoryParent.id=" + categoryParent.getId() +
+                ", categoryParent.id=" + (categoryParent != null ? categoryParent.getId() : null)+
                 '}';
     }
 }

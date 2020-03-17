@@ -78,8 +78,12 @@ public class ItemController {
     }
 
     @PostMapping("/add-parent-category")
-    public void addParentCategory() {
-        // TODO
+    public Category addParentCategory(@RequestBody HashMap<String, String> hashMap,
+                                  @Autowired HttpServletRequest request) {
+        String name = hashMap.get("name");
+        Long idChild = hashMap.get("idChild") != null ? Long.parseLong(hashMap.get("idChild")) : null;
+        if (idChild == null) throw new CustomBadRequestException("Le paramètre idChild ne peut pas être null");
+        return categoryService.addParentCategory(name, idChild, extractIdUserFromHeader(request));
     }
 
     @PostMapping("/add-item")
