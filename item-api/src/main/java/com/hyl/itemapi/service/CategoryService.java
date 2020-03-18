@@ -67,6 +67,9 @@ public class CategoryService {
         Category category = getCategoryById(idCategory);
         Category categoryDest = idCategoryDest != null && idCategoryDest != 0 ? getCategoryById(idCategoryDest) : null;
 
+        CustomValidator.validate(category, Category.MoveValidation.class);
+        if (categoryDest != null) CustomValidator.validate(categoryDest, Category.MoveValidation.class);
+
         if( isHierarchicalLink(category, categoryDest) )
             throw new CustomBadRequestException("Déplacement impossible: les catégories ont un lien de parenté.");
 
