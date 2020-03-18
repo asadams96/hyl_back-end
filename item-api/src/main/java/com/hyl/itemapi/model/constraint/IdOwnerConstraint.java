@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Target( { ElementType.TYPE, ElementType.FIELD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface IdOwnerConstraint {
-    String message() default "{hyl.item.iduser.error.constraint}";
+    String message() default "{hyl.object.iduser.error.constraint}";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

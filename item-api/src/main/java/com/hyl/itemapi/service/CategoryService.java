@@ -48,6 +48,15 @@ public class CategoryService {
         else throw new CustomNotFoundException("La catégorie ayant pour id '"+idCategory+"' est introuvable.");
     }
 
+    public static void renameCategory(long idCategory, String name) {
+        Category category = getCategoryById(idCategory);
+        if (!category.getName().equals(name)) {
+            category.setName(name);
+            CustomValidator.validate(category, Category.UpdateValidation.class);
+            categoryDao.save(category);
+        }
+    }
+
     public Category addChildCategory(String name, Long idParent, Long idUser) {
         Category category = new Category();
         category.setName(name);

@@ -1,6 +1,7 @@
 package com.hyl.itemapi.model.constraint.validator;
 
 import com.hyl.itemapi.controller.ItemController;
+import com.hyl.itemapi.model.Category;
 import com.hyl.itemapi.model.Item;
 import com.hyl.itemapi.model.SubItem;
 import com.hyl.itemapi.model.constraint.IdOwnerConstraint;
@@ -22,14 +23,14 @@ public class IdOwnerValidator implements ConstraintValidator<IdOwnerConstraint, 
 
     @Override
     public boolean isValid(Object object, ConstraintValidatorContext context) {
-        Item item;
-        if (object.getClass().equals(SubItem.class)) {
-            item = ((SubItem) object).getItem();
-        } else if (object.getClass().equals(Item.class)) {
-            item = (Item) object;
-        } else {
-            return false;
-        }
-        return ItemController.extractIdUserFromHeader(request) == item.getIdUser();
+            if (object.getClass().equals(SubItem.class)) {
+                return ItemController.extractIdUserFromHeader(request) == ((SubItem) object).getItem().getIdUser();
+            } else if (object.getClass().equals(Item.class)) {
+                return ItemController.extractIdUserFromHeader(request) == ((Item) object).getIdUser();
+            } else if (object.getClass().equals(Category.class)) {
+                    return ItemController.extractIdUserFromHeader(request) ==  ((Category) object).getIdUser();
+            } else {
+                return false;
+            }
     }
 }

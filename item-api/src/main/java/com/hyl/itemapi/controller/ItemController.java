@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -134,8 +135,11 @@ public class ItemController {
 
     //************************************************** PATCH
     @PatchMapping("/rename-category")
-    public void renameCategory() {
-        // TODO
+    public void renameCategory(@RequestBody HashMap<String, String> hashMap) {
+        String name = hashMap.get("name");
+        Long idCategory = hashMap.get("id") != null ? Long.parseLong(hashMap.get("id")) : null;
+        if (idCategory == null) throw new CustomBadRequestException("Le paramètre id ne peut pas être null");
+        CategoryService.renameCategory(idCategory, name);
     }
 
     @PatchMapping("/move-category")
@@ -186,6 +190,11 @@ public class ItemController {
 
 
     //************************************************** SHARE
+    @ExceptionHandler(NumberFormatException.class)
+    public ResponseEntity<?> handle (NumberFormatException e) {
+        return ResponseEntity.badRequest().body(new CustomBadRequestException(e));
+    }
+
     public static long extractIdUserFromHeader (HttpServletRequest request) {
         String idUserStr = request.getHeader("idUser");
         if ( idUserStr == null ) {

@@ -2,6 +2,7 @@ package com.hyl.itemapi.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hyl.itemapi.model.constraint.AtomicCategoryNameConstraint;
+import com.hyl.itemapi.model.constraint.IdOwnerConstraint;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -10,6 +11,7 @@ import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 import java.util.List;
 
+@IdOwnerConstraint(groups = {Category.UpdateValidation.class})
 @Entity
 @Table(name = "category")
 public class Category {
@@ -18,6 +20,7 @@ public class Category {
     //************************************************** GROUPE DE VALIDATION
     public interface AddChildValidation {}
     public interface AddParentValidation {}
+    public interface UpdateValidation {}
 
 
     //************************************************** PARAMETRES
@@ -29,7 +32,7 @@ public class Category {
 
     @NotBlank(message = "{hyl.category.name.error.notblank}", groups = {AddChildValidation.class, AddParentValidation.class})
     @Length(min = 3, max = 15, message = "{hyl.category.name.error.length}", groups = {AddChildValidation.class, AddParentValidation.class})
-    @AtomicCategoryNameConstraint(groups = {AddChildValidation.class, AddParentValidation.class})
+    @AtomicCategoryNameConstraint(groups = {AddChildValidation.class, AddParentValidation.class, UpdateValidation.class})
     @Column(name = "name")
     private String name;
 
