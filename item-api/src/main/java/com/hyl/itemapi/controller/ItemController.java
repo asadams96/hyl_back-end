@@ -75,7 +75,7 @@ public class ItemController {
                                      @Autowired HttpServletRequest request) {
         String name = hashMap.get("name");
         Long idParent = hashMap.get("idParent") != null ? Long.parseLong(hashMap.get("idParent")) : null;
-        return categoryService.addChildCategory(name, idParent, extractIdUserFromHeader(request));
+        return CategoryService.addChildCategory(name, idParent, extractIdUserFromHeader(request));
     }
 
     @PostMapping("/add-parent-category")
@@ -84,7 +84,7 @@ public class ItemController {
         String name = hashMap.get("name");
         Long idChild = hashMap.get("idChild") != null ? Long.parseLong(hashMap.get("idChild")) : null;
         if (idChild == null) throw new CustomBadRequestException("Le paramètre idChild ne peut pas être null");
-        return categoryService.addParentCategory(name, idChild, extractIdUserFromHeader(request));
+        return CategoryService.addParentCategory(name, idChild, extractIdUserFromHeader(request));
     }
 
     @PostMapping("/add-item")
@@ -143,8 +143,11 @@ public class ItemController {
     }
 
     @PatchMapping("/move-category")
-    public void moveCategory() {
-        // TODO
+    public void moveCategory(@RequestBody HashMap<String, String> hashMap) {
+        Long idCategory = hashMap.get("id") != null ? Long.parseLong(hashMap.get("id")) : null;
+        Long idCategoryDest = hashMap.get("idParent") != null ? Long.parseLong(hashMap.get("idParent")) : null;
+        if (idCategory == null) throw new CustomBadRequestException("Le paramètre id ne peut pas être null");
+        CategoryService.moveCategory(idCategory, idCategoryDest);
     }
 
     @PatchMapping("/rename-item")

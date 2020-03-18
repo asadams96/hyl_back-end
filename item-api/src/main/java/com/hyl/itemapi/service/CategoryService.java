@@ -19,8 +19,7 @@ public class CategoryService {
 
 
     //************************************************** BEAN
-    @Value("${hyl.constraint.category.depth}")
-    private String categoryMaxAuthorizedDepth;
+    private static String categoryMaxAuthorizedDepth;
 
 
     //************************************************** DAO
@@ -31,6 +30,13 @@ public class CategoryService {
     @Autowired
     public CategoryService(CategoryDao categoryDao) {
         CategoryService.categoryDao = categoryDao;
+    }
+
+
+    //************************************************** SETTER
+    @Value("${hyl.constraint.category.depth}")
+    public void setCategoryMaxAuthorizedDepth(String categoryMaxAuthorizedDepth) {
+        CategoryService.categoryMaxAuthorizedDepth = categoryMaxAuthorizedDepth;
     }
 
 
@@ -57,18 +63,37 @@ public class CategoryService {
         }
     }
 
-    public Category addChildCategory(String name, Long idParent, Long idUser) {
+    public static void moveCategory(long idCategory, Long idCategoryDest) {
+        Category category = getCategoryById(idCategory);
+        Category categoryDest = idCategoryDest != null && idCategoryDest != 0 ? getCategoryById(idCategoryDest) : null;
+
+        if( isHierarchicalLink(category, categoryDest) )
+            throw new CustomBadRequestException("Déplacement impossible: les catégories ont un lien de parenté.");
+
+        category.setCategoryParent(categoryDest);
+
+        if (idCategoryDest != null && idCategoryDest != 0) {
+            categoryDest.getCategories().add(category);
+            categoryDest = categoryDao.save(categoryDest);
+            checkCategoryDepth(categoryDest);
+        } else {
+            category = categoryDao.save(category);
+            checkCategoryDepth(category);
+        }
+    }
+
+    public static Category addChildCategory(String name, Long idParent, Long idUser) {
         Category category = new Category();
         category.setName(name);
         category.setIdUser(idUser);
         category.setCategoryParent( idParent != null ? getCategoryById(idParent) : null);
         CustomValidator.validate(category, Category.AddChildValidation.class);
         category = categoryDao.save(category);
-        this.checkCategoryDepth(category);
+        checkCategoryDepth(category);
         return category;
     }
 
-    public Category addParentCategory(String name, long idChild, Long idUser) {
+    public static Category addParentCategory(String name, long idChild, Long idUser) {
         Category category = new Category();
         Category oldParentCategory = getCategoryById(idChild);
         category.setName(name);
@@ -78,11 +103,11 @@ public class CategoryService {
         category.getCategories().add(oldParentCategory);
         oldParentCategory.setCategoryParent(category);
         category = categoryDao.save(category);
-        this.checkCategoryDepth(category);
+        checkCategoryDepth(category);
         return category;
     }
 
-    public void checkCategoryDepth(Category pCategory) {
+    private static void checkCategoryDepth(Category pCategory) {
         class Interne {
             private int checkByRecursivity (Category pCategory, int counter) {
                 if (pCategory.getCategories() != null) {
@@ -94,8 +119,8 @@ public class CategoryService {
                 return counter;
             }
         }
-        if (pCategory == null) return;
-        else {
+
+        if (pCategory != null) {
             Interne interne = new Interne();
             boolean hasParent = true;
             while (hasParent) {
@@ -112,11 +137,34 @@ public class CategoryService {
                     }
                 }
             }
-            return;
+
         }
     }
 
     public static boolean checkAtomicName(String name) {
         return categoryDao.findByName(name).isEmpty();
+    }
+
+    private static boolean isHierarchicalLink(Category category1, Category category2) {
+        class Interne {
+            void recursivity (Category category1, Category category2) {
+                if (category1 != null && category1.getCategories() != null) {
+                    for (Category category : category1.getCategories()) {
+                        if (category.equals(category2)) throw new RuntimeException();
+                        recursivity(category, category2);
+                    }
+                }
+            }
+        }
+
+        if ( category1.getCategoryParent() == category2) {
+            return true;
+        }
+        try {
+            new Interne().recursivity(category1, category2);
+        } catch (RuntimeException e) {
+            return true;
+        }
+        return false;
     }
 }
