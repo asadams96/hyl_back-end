@@ -2,6 +2,7 @@ package com.hyl.itemapi.service;
 
 import com.hyl.itemapi.dao.ItemDao;
 import com.hyl.itemapi.exception.CustomNotFoundException;
+import com.hyl.itemapi.model.Category;
 import com.hyl.itemapi.model.Item;
 import com.hyl.itemapi.model.validation.CustomValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,17 @@ public class ItemService {
         if (!item.getName().equals(name)) {
             item.setName(name);
             CustomValidator.validate(item, Item.UpdateValidation.class);
+            itemDao.save(item);
+        }
+    }
+
+    public static void moveItem(long idItem, Long idCategoryDest) {
+        Item item = getItemById(idItem);
+        Category oldCategory = item.getCategory();
+        if (idCategoryDest == null || idCategoryDest == 0) item.setCategory(null);
+        else item.setCategory(CategoryService.getCategoryById(idCategoryDest));
+        if(item.getCategory() != oldCategory) {
+            CustomValidator.validate(item, Item.MoveValidation.class);
             itemDao.save(item);
         }
     }

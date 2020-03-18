@@ -11,7 +11,7 @@ import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 import java.util.List;
 
-@IdOwnerConstraint(groups = {Item.UpdateValidation.class})
+@IdOwnerConstraint(groups = {Item.UpdateValidation.class, Item.MoveValidation.class})
 @Entity
 @Table(name = "item")
 public class Item {
@@ -20,6 +20,7 @@ public class Item {
     //************************************************** GROUPE DE VALIDATION
     public interface AddValidation {}
     public interface UpdateValidation {}
+    public interface MoveValidation {}
 
 
     //************************************************** PARAMETRES

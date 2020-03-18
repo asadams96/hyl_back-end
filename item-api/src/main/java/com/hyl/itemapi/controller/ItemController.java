@@ -163,8 +163,11 @@ public class ItemController {
     }
 
     @PatchMapping("/move-item")
-    public void moveItem() {
-        // TODO
+    public void moveItem(@RequestBody HashMap<String, String> hashMap) {
+        Long idItem = hashMap.get("id") != null ? Long.parseLong(hashMap.get("id")) : null;
+        Long idCategoryDest = hashMap.get("idCategory") != null ? Long.parseLong(hashMap.get("idCategory")) : null;
+        if (idItem == null) throw new CustomBadRequestException("Le paramètre idItem ne peut pas être null");
+        ItemService.moveItem(idItem, idCategoryDest);
     }
 
     @PatchMapping("/rename-subitem")
