@@ -38,6 +38,15 @@ public class ItemService {
         return itemDao.findAllByIdUserAndCategoryIsNull(id);
     }
 
+    public static void renameItem(long idItem, String name) {
+        Item item = getItemById(idItem);
+        if (!item.getName().equals(name)) {
+            item.setName(name);
+            CustomValidator.validate(item, Item.UpdateValidation.class);
+            itemDao.save(item);
+        }
+    }
+
     public Item addItem(String name, String description, long idCategory,
                         String reference, long idUser, List<MultipartFile> files) {
 

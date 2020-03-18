@@ -31,8 +31,8 @@ public class Category {
     @Null(message = "{hyl.category.id.error.null}", groups = {AddChildValidation.class, AddParentValidation.class})
     private Long id;
 
-    @NotBlank(message = "{hyl.category.name.error.notblank}", groups = {AddChildValidation.class, AddParentValidation.class})
-    @Length(min = 3, max = 15, message = "{hyl.category.name.error.length}", groups = {AddChildValidation.class, AddParentValidation.class})
+    @NotBlank(message = "{hyl.category.name.error.notblank}", groups = {AddChildValidation.class, AddParentValidation.class, UpdateValidation.class})
+    @Length(min = 3, max = 15, message = "{hyl.category.name.error.length}", groups = {AddChildValidation.class, AddParentValidation.class, UpdateValidation.class})
     @AtomicCategoryNameConstraint(groups = {AddChildValidation.class, AddParentValidation.class, UpdateValidation.class})
     @Column(name = "name")
     private String name;

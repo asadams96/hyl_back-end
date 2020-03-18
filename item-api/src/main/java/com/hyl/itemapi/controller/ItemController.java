@@ -75,6 +75,7 @@ public class ItemController {
                                      @Autowired HttpServletRequest request) {
         String name = hashMap.get("name");
         Long idParent = hashMap.get("idParent") != null ? Long.parseLong(hashMap.get("idParent")) : null;
+        if (name == null) throw new CustomBadRequestException("Le paramètre name ne peut pas être null");
         return CategoryService.addChildCategory(name, idParent, extractIdUserFromHeader(request));
     }
 
@@ -84,6 +85,7 @@ public class ItemController {
         String name = hashMap.get("name");
         Long idChild = hashMap.get("idChild") != null ? Long.parseLong(hashMap.get("idChild")) : null;
         if (idChild == null) throw new CustomBadRequestException("Le paramètre idChild ne peut pas être null");
+        if (name == null) throw new CustomBadRequestException("Le paramètre name ne peut pas être null");
         return CategoryService.addParentCategory(name, idChild, extractIdUserFromHeader(request));
     }
 
@@ -139,6 +141,7 @@ public class ItemController {
         String name = hashMap.get("name");
         Long idCategory = hashMap.get("id") != null ? Long.parseLong(hashMap.get("id")) : null;
         if (idCategory == null) throw new CustomBadRequestException("Le paramètre id ne peut pas être null");
+        if (name == null) throw new CustomBadRequestException("Le paramètre name ne peut pas être null");
         CategoryService.renameCategory(idCategory, name);
     }
 
@@ -151,8 +154,12 @@ public class ItemController {
     }
 
     @PatchMapping("/rename-item")
-    public void renameItem() {
-        // TODO
+    public void renameItem(@RequestBody HashMap<String, String> hashMap) {
+        String name = hashMap.get("name");
+        Long idItem = hashMap.get("id") != null ? Long.parseLong(hashMap.get("id")) : null;
+        if (idItem == null) throw new CustomBadRequestException("Le paramètre id ne peut pas être null");
+        if (name == null) throw new CustomBadRequestException("Le paramètre name ne peut pas être null");
+        ItemService.renameItem(idItem, name);
     }
 
     @PatchMapping("/move-item")

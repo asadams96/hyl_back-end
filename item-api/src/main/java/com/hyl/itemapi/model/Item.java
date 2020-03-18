@@ -2,6 +2,7 @@ package com.hyl.itemapi.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hyl.itemapi.model.constraint.AtomicItemNameConstraint;
+import com.hyl.itemapi.model.constraint.IdOwnerConstraint;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -10,6 +11,7 @@ import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 import java.util.List;
 
+@IdOwnerConstraint(groups = {Item.UpdateValidation.class})
 @Entity
 @Table(name = "item")
 public class Item {
@@ -17,6 +19,7 @@ public class Item {
 
     //************************************************** GROUPE DE VALIDATION
     public interface AddValidation {}
+    public interface UpdateValidation {}
 
 
     //************************************************** PARAMETRES
@@ -26,9 +29,9 @@ public class Item {
     @Null(message = "{hyl.item.id.error.null}", groups = {AddValidation.class})
     private Long id;
 
-    @NotBlank(message = "{hyl.item.name.error.notblank}", groups = {AddValidation.class})
-    @Length(min = 3, max = 15, message = "{hyl.item.name.error.length}", groups = {AddValidation.class})
-    @AtomicItemNameConstraint(groups = {AddValidation.class})
+    @NotBlank(message = "{hyl.item.name.error.notblank}", groups = {AddValidation.class, UpdateValidation.class})
+    @Length(min = 3, max = 15, message = "{hyl.item.name.error.length}", groups = {AddValidation.class, UpdateValidation.class})
+    @AtomicItemNameConstraint(groups = {AddValidation.class, UpdateValidation.class})
     @Column(name = "name")
     private String name;
 
