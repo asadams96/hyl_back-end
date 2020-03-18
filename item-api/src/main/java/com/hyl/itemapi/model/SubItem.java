@@ -21,6 +21,7 @@ public class SubItem {
 
     //************************************************** GROUPE DE VALIDATION
     public interface AddValidation {}
+    public interface UpdateValidation {}
 
 
     //************************************************** PARAMETRES
@@ -30,9 +31,9 @@ public class SubItem {
     @Null(message = "{hyl.subitem.id.error.null}", groups = {AddValidation.class})
     private Long id;
 
-    @NotBlank(message = "{hyl.subitem.reference.error.notblank}", groups = {AddValidation.class})
-    @Length(min = 6, max = 15, message = "{hyl.subitem.reference.error.length}", groups = {AddValidation.class})
-    @AtomicSubItemRefConstraint(groups = {AddValidation.class})
+    @NotBlank(message = "{hyl.subitem.reference.error.notblank}", groups = {AddValidation.class, UpdateValidation.class})
+    @Length(min = 6, max = 15, message = "{hyl.subitem.reference.error.length}", groups = {AddValidation.class, UpdateValidation.class})
+    @AtomicSubItemRefConstraint(groups = {AddValidation.class, UpdateValidation.class})
     @Column(name = "reference")
     private String reference;
 
@@ -43,7 +44,7 @@ public class SubItem {
     @OneToMany(targetEntity = Picture.class, mappedBy = "subItem", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<Picture> urlImages;
 
-    @IdOwnerConstraint(groups = {AddValidation.class})
+    @IdOwnerConstraint(groups = {AddValidation.class, UpdateValidation.class})
     @NotNull(message = "{hyl.subitem.item.error.notnull}", groups = {AddValidation.class})
     @ManyToOne(targetEntity = Item.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "id_item")

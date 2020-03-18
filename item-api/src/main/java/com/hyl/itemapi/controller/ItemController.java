@@ -171,8 +171,12 @@ public class ItemController {
     }
 
     @PatchMapping("/rename-subitem")
-    public void renameSubItem() {
-        // TODO
+    public void renameSubItem(@RequestBody HashMap<String, String> hashMap) {
+        Long idSubItem = hashMap.get("id") != null ? Long.parseLong(hashMap.get("id")) : null;
+        String reference = hashMap.get("reference");
+        if (idSubItem == null) throw new CustomBadRequestException("Le paramètre idSubItem ne peut pas être null");
+        if (reference == null) throw new CustomBadRequestException("Le paramètre reference ne peut pas être null");
+        SubItemService.renameSubItem(idSubItem, reference);
     }
 
     @PatchMapping("/edit-subitem")

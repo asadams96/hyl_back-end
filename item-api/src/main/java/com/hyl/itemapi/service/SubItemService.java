@@ -32,6 +32,15 @@ public class SubItemService {
 
 
     //************************************************** METHODES
+    public static void renameSubItem(long idSubItem, String reference) {
+        SubItem subItem = getSubItemById(idSubItem);
+        if (!subItem.getReference().equals(reference)) {
+            subItem.setReference(reference);
+            CustomValidator.validate(subItem, SubItem.UpdateValidation.class);
+            subItemDao.save(subItem);
+        }
+    }
+
     public SubItem addSubItem(String reference, long idItem, List<MultipartFile> files) {
         SubItem subItem = buildSubItem( ItemService.getItemById(idItem), reference, files );
         validAddSubItem(subItem);
