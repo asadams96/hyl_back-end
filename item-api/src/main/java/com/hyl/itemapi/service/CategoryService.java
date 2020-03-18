@@ -1,10 +1,12 @@
 package com.hyl.itemapi.service;
 
 import com.hyl.itemapi.dao.CategoryDao;
+import com.hyl.itemapi.exception.CustomBadRequestException;
 import com.hyl.itemapi.exception.CustomNotFoundException;
 import com.hyl.itemapi.model.Category;
 import com.hyl.itemapi.model.validation.CustomValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +16,11 @@ import java.util.Optional;
 @Service
 @Transactional
 public class CategoryService {
+
+
+    //************************************************** BEAN
+    @Value("${hyl.constraint.category.depth}")
+    private String categoryMaxAuthorizedDepth;
 
 
     //************************************************** DAO
@@ -47,7 +54,9 @@ public class CategoryService {
         category.setIdUser(idUser);
         category.setCategoryParent( idParent != null ? getCategoryById(idParent) : null);
         CustomValidator.validate(category, Category.AddChildValidation.class);
-        return categoryDao.save(category);
+        category = categoryDao.save(category);
+        this.checkCategoryDepth(category);
+        return category;
     }
 
     public Category addParentCategory(String name, long idChild, Long idUser) {
@@ -58,9 +67,44 @@ public class CategoryService {
         category.setCategoryParent(oldParentCategory.getCategoryParent());
         category.setCategories(new ArrayList<>());
         category.getCategories().add(oldParentCategory);
-        CustomValidator.validate(category, Category.AddParentValidation.class);
         oldParentCategory.setCategoryParent(category);
-        return categoryDao.save(category);
+        category = categoryDao.save(category);
+        this.checkCategoryDepth(category);
+        return category;
+    }
+
+    public void checkCategoryDepth(Category pCategory) {
+        class Interne {
+            private int checkByRecursivity (Category pCategory, int counter) {
+                if (pCategory.getCategories() != null) {
+                    for (Category category : pCategory.getCategories()) {
+                        counter ++;
+                        counter = this.checkByRecursivity(category, counter);
+                    }
+                }
+                return counter;
+            }
+        }
+        if (pCategory == null) return;
+        else {
+            Interne interne = new Interne();
+            boolean hasParent = true;
+            while (hasParent) {
+                if (pCategory.getCategoryParent() != null) pCategory = pCategory.getCategoryParent();
+                else hasParent = false;
+            }
+            if (pCategory.getCategories() != null) {
+                int authorizedDepth = Integer.parseInt(categoryMaxAuthorizedDepth);
+                for (Category category : pCategory.getCategories()) {
+                    int count = 1;
+                    count = interne.checkByRecursivity(category, count);
+                    if (count > authorizedDepth) {
+                        throw new CustomBadRequestException("La profondeur de catégorie autorisé a été atteint.");
+                    }
+                }
+            }
+            return;
+        }
     }
 
     public static boolean checkAtomicName(String name) {
