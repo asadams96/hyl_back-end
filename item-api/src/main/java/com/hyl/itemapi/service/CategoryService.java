@@ -89,7 +89,7 @@ public class CategoryService {
         Category category = new Category();
         category.setName(name);
         category.setIdUser(idUser);
-        category.setCategoryParent( idParent != null ? getCategoryById(idParent) : null);
+        category.setCategoryParent( idParent != null && idParent!= 0 ? getCategoryById(idParent) : null);
         CustomValidator.validate(category, Category.AddChildValidation.class);
         category = categoryDao.save(category);
         checkCategoryDepth(category);
