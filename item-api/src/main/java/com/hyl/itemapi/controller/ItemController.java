@@ -233,8 +233,8 @@ public class ItemController {
     }
 
     @DeleteMapping("/delete-item")
-    public void deleteItem() {
-        // TODO
+    public void deleteItem(@RequestParam long id) {
+        ItemService.deleteItem(id);
     }
 
     @DeleteMapping("/delete-subitem")

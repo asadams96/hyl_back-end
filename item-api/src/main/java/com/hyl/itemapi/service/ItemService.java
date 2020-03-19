@@ -4,6 +4,7 @@ import com.hyl.itemapi.dao.ItemDao;
 import com.hyl.itemapi.exception.CustomNotFoundException;
 import com.hyl.itemapi.model.Category;
 import com.hyl.itemapi.model.Item;
+import com.hyl.itemapi.model.SubItem;
 import com.hyl.itemapi.model.validation.CustomValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -61,6 +62,17 @@ public class ItemService {
 
     public static void save(Item item) {
         itemDao.save(item);
+    }
+
+    public static void deleteItem(long id) {
+        Item item = getItemById(id);
+        CustomValidator.validate(item, Item.OwnerValidation.class);
+        List<SubItem> subItems = item.getSubItems();
+        subItems.forEach(subItem -> {
+            item.getSubItems().remove(subItem);
+            SubItemService.deleteSubItem(subItem);
+        });
+        itemDao.delete(item);
     }
 
     public Item addItem(String name, String description, long idCategory,

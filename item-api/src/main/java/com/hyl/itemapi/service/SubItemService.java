@@ -52,6 +52,11 @@ public class SubItemService {
         return subItem;
     }
 
+    public static void deleteSubItem(SubItem subItem) {
+        CustomValidator.validate(subItem, SubItem.OwnerValidation.class);
+        subItemDao.delete(subItem);
+    }
+
     public static SubItem editSubItem(String reference, SubItem subItem,
                                       List<Long> filesToDel, List<MultipartFile> files) {
 
