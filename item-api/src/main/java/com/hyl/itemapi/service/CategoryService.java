@@ -67,8 +67,8 @@ public class CategoryService {
         Category category = getCategoryById(idCategory);
         Category categoryDest = idCategoryDest != null && idCategoryDest != 0 ? getCategoryById(idCategoryDest) : null;
 
-        CustomValidator.validate(category, Category.MoveValidation.class);
-        if (categoryDest != null) CustomValidator.validate(categoryDest, Category.MoveValidation.class);
+        CustomValidator.validate(category, Category.OwnerValidation.class);
+        if (categoryDest != null) CustomValidator.validate(categoryDest, Category.OwnerValidation.class);
 
         if( isHierarchicalLink(category, categoryDest) )
             throw new CustomBadRequestException("Déplacement impossible: les catégories ont un lien de parenté.");
@@ -108,6 +108,29 @@ public class CategoryService {
         category = categoryDao.save(category);
         checkCategoryDepth(category);
         return category;
+    }
+
+    public static void deleteCategory(long id) {
+        Category category = getCategoryById(id);
+
+        CustomValidator.validate(category, Category.OwnerValidation.class);
+
+        Category parentCategory = category.getCategoryParent();
+
+        category.getCategories().forEach(category1 -> {
+            category1.setCategoryParent(parentCategory);
+            if (parentCategory != null) parentCategory.getCategories().add(category1);
+            else categoryDao.save(category1);
+        });
+
+        category.getItems().forEach(item -> {
+            item.setCategory(parentCategory);
+            if (parentCategory != null) parentCategory.getItems().add(item);
+            else ItemService.save(item);
+        });
+        if (parentCategory != null) categoryDao.save(parentCategory);
+
+        categoryDao.delete(category);
     }
 
     private static void checkCategoryDepth(Category pCategory) {

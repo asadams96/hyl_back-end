@@ -11,7 +11,7 @@ import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 import java.util.List;
 
-@IdOwnerConstraint(groups = {Category.UpdateValidation.class, Category.MoveValidation.class})
+@IdOwnerConstraint(groups = {Category.UpdateValidation.class, Category.OwnerValidation.class})
 @Entity
 @Table(name = "category")
 public class Category {
@@ -21,7 +21,7 @@ public class Category {
     public interface AddChildValidation {}
     public interface AddParentValidation {}
     public interface UpdateValidation {}
-    public interface MoveValidation {}
+    public interface OwnerValidation {}
 
 
     //************************************************** PARAMETRES

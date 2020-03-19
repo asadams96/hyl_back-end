@@ -59,6 +59,10 @@ public class ItemService {
         }
     }
 
+    public static void save(Item item) {
+        itemDao.save(item);
+    }
+
     public Item addItem(String name, String description, long idCategory,
                         String reference, long idUser, List<MultipartFile> files) {
 

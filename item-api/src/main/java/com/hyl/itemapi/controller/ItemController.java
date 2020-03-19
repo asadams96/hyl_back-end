@@ -228,8 +228,8 @@ public class ItemController {
 
     //************************************************** DELETE
     @DeleteMapping("/delete-category")
-    public void deleteCategory() {
-        // TODO
+    public void deleteCategory(@RequestParam long id) {
+        CategoryService.deleteCategory(id);
     }
 
     @DeleteMapping("/delete-item")
