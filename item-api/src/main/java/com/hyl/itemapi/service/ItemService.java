@@ -80,10 +80,12 @@ public class ItemService {
         item =  itemDao.save(item);
 
         // Enregistrement des images et mise à jour en bdd
-        item.getSubItems().forEach(subItem -> {
-            Hashtable<String, String> urlTable =  FileService.saveMultipartFile(subItem, files);
-            PictureService.majUrlPicture(urlTable);
-        });
+        if (files != null) {
+            item.getSubItems().forEach(subItem -> {
+                Hashtable<String, String> urlTable = FileService.saveMultipartFile(subItem, files);
+                PictureService.majUrlPicture(urlTable);
+            });
+        }
 
         // Retour
         return item;

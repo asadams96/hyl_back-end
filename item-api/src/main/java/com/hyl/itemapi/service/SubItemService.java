@@ -45,8 +45,48 @@ public class SubItemService {
         SubItem subItem = buildSubItem( ItemService.getItemById(idItem), reference, files );
         validAddSubItem(subItem);
         subItemDao.save(subItem);
-        Hashtable<String, String> urlTable =  FileService.saveMultipartFile(subItem, files);
-        PictureService.majUrlPicture(urlTable);
+        if (files != null) {
+            Hashtable<String, String> urlTable =  FileService.saveMultipartFile(subItem, files);
+            PictureService.majUrlPicture(urlTable);
+        }
+        return subItem;
+    }
+
+    public static SubItem editSubItem(String reference, SubItem subItem,
+                                      List<Long> filesToDel, List<MultipartFile> files) {
+
+        // Mise à jour de la référence si elle a changé
+        if (!subItem.getReference().equals(reference)) {
+            subItem.setReference(reference);
+            CustomValidator.validate(subItem, SubItem.UpdateValidation.class);
+        }
+
+        // Supression des images à supprimer en bdd et sur la machine
+        if (filesToDel != null) {
+            for (long id : filesToDel) {
+                PictureService.deletePictureById(subItem, id);
+            }
+        }
+
+        // Construction des 'Picture' (stockage des informations des images)
+        if (files != null) {
+            for (MultipartFile file : files) {
+                subItem.getUrlImages().add(PictureService.buildPicture(subItem, file));
+            }
+        }
+
+        // Mise à jour du subitem en bdd avec ses nouvelles images
+        subItem = subItemDao.save(subItem);
+
+        if (files != null) {
+            // Ajout des nouvelles images sur la machine
+            Hashtable<String, String> urlTable = FileService.saveMultipartFile(subItem, files);
+
+            // Mise à jour de l'url des 'Picture' en bdd
+            PictureService.majUrlPicture(urlTable);
+        }
+
+        // Renvoi du subitem mis à jour
         return subItem;
     }
 
@@ -58,8 +98,10 @@ public class SubItemService {
         subItem.setItem(item);
         subItem.setUrlImages(new ArrayList<>());
 
-        // Construction des 'Picture' (stockage des informations des images)
-        files.forEach(multipartFile -> subItem.getUrlImages().add(PictureService.buildPicture(subItem, multipartFile)));
+        if (files != null) {
+            // Construction des 'Picture' (stockage des informations des images)
+            files.forEach(multipartFile -> subItem.getUrlImages().add(PictureService.buildPicture(subItem, multipartFile)));
+        }
 
         // Retour
         return subItem;

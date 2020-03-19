@@ -74,6 +74,10 @@ public class FileService {
 
     }
 
+    protected static void deleteFile(Picture picture) {
+        new File(URI.create(localUrl + picture.getUrl())).delete();
+    }
+
     private static Hashtable<String, MultipartFile> convertListToTable(List<MultipartFile> files, SubItem subItem) {
         Hashtable<String, MultipartFile> table = new Hashtable<>();
         int finalLength = files.size();

@@ -23,14 +23,19 @@ public class IdOwnerValidator implements ConstraintValidator<IdOwnerConstraint, 
 
     @Override
     public boolean isValid(Object object, ConstraintValidatorContext context) {
-            if (object.getClass().equals(SubItem.class)) {
-                return ItemController.extractIdUserFromHeader(request) == ((SubItem) object).getItem().getIdUser();
-            } else if (object.getClass().equals(Item.class)) {
-                return ItemController.extractIdUserFromHeader(request) == ((Item) object).getIdUser();
-            } else if (object.getClass().equals(Category.class)) {
-                    return ItemController.extractIdUserFromHeader(request) ==  ((Category) object).getIdUser();
-            } else {
-                return false;
-            }
+        String className = object.getClass().getName();
+        if (className.contains("$")) {
+            className = className.substring(0, className.indexOf("$"));
+        }
+
+        if (className.equals(SubItem.class.getName())) {
+            return ItemController.extractIdUserFromHeader(request) == ((SubItem) object).getItem().getIdUser();
+        } else if (className.equals(Item.class.getName())) {
+            return ItemController.extractIdUserFromHeader(request) == ((Item) object).getIdUser();
+        } else if (className.equals(Category.class.getName())) {
+            return ItemController.extractIdUserFromHeader(request) ==  ((Category) object).getIdUser();
+        } else {
+            return false;
+        }
     }
 }

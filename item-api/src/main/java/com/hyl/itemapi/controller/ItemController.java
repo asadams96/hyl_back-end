@@ -3,18 +3,21 @@ package com.hyl.itemapi.controller;
 import com.hyl.itemapi.exception.CustomBadRequestException;
 import com.hyl.itemapi.model.Category;
 import com.hyl.itemapi.model.Item;
+import com.hyl.itemapi.model.Picture;
 import com.hyl.itemapi.model.SubItem;
 import com.hyl.itemapi.model.validation.MultipartFileListValidation;
 import com.hyl.itemapi.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -90,12 +93,14 @@ public class ItemController {
     }
 
     @PostMapping("/add-item")
-    public Item addItem(@RequestPart(value = "files") List<MultipartFile> files,
+    public Item addItem(@RequestPart(value = "files", required = false) List<MultipartFile> files,
                         @RequestPart(value = "data") Object obj,
                         @Autowired HttpServletRequest request) {
 
         // Validation des images liées au seul et unique subitem obligatoire lors de l'ajout d'un item
-        MultipartFileListValidation.validMultipartFileList(files);
+        if (files != null && !files.isEmpty() && !files.get(0).isEmpty()) {
+            MultipartFileListValidation.validMultipartFileList(files, null);
+        }
 
         // Conversion en JSON de l'objet JSON reçu
         JSONObject data = (JSONObject) JSONObject.wrap(obj);
@@ -110,11 +115,13 @@ public class ItemController {
     }
 
     @PostMapping("/add-subitem")
-    public SubItem addSubItem(@RequestPart(value = "files") List<MultipartFile> files,
+    public SubItem addSubItem(@RequestPart(value = "files", required = false) List<MultipartFile> files,
                               @RequestPart(value = "data") Object obj) {
 
         // Validation des images liées au seul et unique subitem obligatoire lors de l'ajout d'un subitem
-        MultipartFileListValidation.validMultipartFileList(files);
+        if (files != null && !files.isEmpty() && !files.get(0).isEmpty()) {
+            MultipartFileListValidation.validMultipartFileList(files, null);
+        }
 
         // Conversion en JSON de l'objet JSON reçu
         JSONObject data = (JSONObject) JSONObject.wrap(obj);
@@ -180,8 +187,43 @@ public class ItemController {
     }
 
     @PatchMapping("/edit-subitem")
-    public void editSubItem() {
-        // TODO
+    public SubItem editSubItem(@RequestPart(value = "files", required = false) List<MultipartFile> files,
+                                @RequestPart(value = "data") Object obj,
+                                @Autowired HttpServletRequest request) {
+
+        // Conversion en JSON de l'objet JSON reçu
+        JSONObject data = (JSONObject) JSONObject.wrap(obj);
+
+        // Récuprération du subitem en bdd
+        SubItem subItem = SubItemService.getSubItemById(data.optLong("idSubItem"));
+
+        // Check manuellement si c'est bien le proprietaire du subitem qui est à l'origine de la requête (bug validateur)
+        if (subItem.getItem().getIdUser() != extractIdUserFromHeader(request)) {
+            throw new CustomBadRequestException("L'id renseigné dans le header ne correspond pas à l'id du propriétaire de l'objet.");
+        }
+
+        // Extraction des images à supprimer
+        List<Long> filesToDel = new ArrayList<>();
+        JSONArray filesToDelJSONArray = (data.optJSONArray("filesToDel"));
+        if (filesToDelJSONArray != null) {
+            for (int i = 0; i < filesToDelJSONArray.length(); i++) {
+                long id = filesToDelJSONArray.optLong(i);
+                if (id != 0) filesToDel.add(id);
+            }
+        }
+
+       // Validation des images
+        if (files != null && !files.isEmpty() && !files.get(0).isEmpty()) {
+           
+            List<Picture> pictures = new ArrayList<>();
+            for (Picture picture : subItem.getUrlImages()) {
+                if (!filesToDel.contains(picture.getId())) pictures.add(picture);
+            }
+            MultipartFileListValidation.validMultipartFileList(files, pictures);
+        }
+
+        // Appel du service subitem pour la validation des données puis l'ajout en bdd
+        return SubItemService.editSubItem(data.optString("reference"), subItem, filesToDel, files);
     }
 
     //************************************************** DELETE

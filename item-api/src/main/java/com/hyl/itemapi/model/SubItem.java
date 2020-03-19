@@ -41,7 +41,7 @@ public class SubItem {
     @OneToMany(targetEntity = TrackingSheet.class, mappedBy = "subItem", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     private List<TrackingSheet> trackingSheets;
 
-    @OneToMany(targetEntity = Picture.class, mappedBy = "subItem", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @OneToMany(targetEntity = Picture.class, mappedBy = "subItem", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Picture> urlImages;
 
     @IdOwnerConstraint(groups = {AddValidation.class, UpdateValidation.class})

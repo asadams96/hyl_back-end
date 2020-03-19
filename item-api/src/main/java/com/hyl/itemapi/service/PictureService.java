@@ -37,6 +37,13 @@ public class PictureService {
        else throw new CustomNotFoundException("L'objet Picture avec pour id="+id+" est introuvable");
     }
 
+    protected static void deletePictureById(SubItem subItem, long id) {
+        Picture picture = getPictureById(id);
+        subItem.getUrlImages().remove(picture);
+        pictureDao.delete(picture);
+        FileService.deleteFile(picture);
+    }
+
     protected static Picture buildPicture(SubItem subItem, MultipartFile multipartFile) {
 
         // Construction de la nouvelle Picture
