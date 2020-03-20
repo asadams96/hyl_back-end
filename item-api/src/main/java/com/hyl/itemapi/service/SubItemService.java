@@ -42,7 +42,7 @@ public class SubItemService {
         }
     }
 
-    public SubItem addSubItem(String reference, long idItem, List<MultipartFile> files) {
+    public static SubItem addSubItem(String reference, long idItem, List<MultipartFile> files) {
         SubItem subItem = buildSubItem( ItemService.getItemById(idItem), reference, files );
         validAddSubItem(subItem);
         subItemDao.save(subItem);

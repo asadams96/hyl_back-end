@@ -27,26 +27,6 @@ public class ItemController {
     private Logger logger = LoggerFactory.getLogger(ItemController.class);
 
 
-    //************************************************** SERVICES
-    private CategoryService categoryService;
-    private ItemService itemService;
-    private PictureService pictureService;
-    private SubItemService subItemService;
-    private TrackingSheetService trackingSheetService;
-
-
-    //************************************************** CONSTRUCTEUR
-    @Autowired
-    public ItemController(CategoryService categoryService, ItemService itemService, PictureService pictureService,
-                          SubItemService subItemService, TrackingSheetService trackingSheetService) {
-        this.categoryService = categoryService;
-        this.itemService = itemService;
-        this.pictureService = pictureService;
-        this.subItemService = subItemService;
-        this.trackingSheetService = trackingSheetService;
-    }
-
-
     //************************************************** GET
     @GetMapping("/check-category-name")
     public boolean checkAtomicCategoryName(@RequestParam String name) {
@@ -103,7 +83,7 @@ public class ItemController {
         JSONObject data = (JSONObject) JSONObject.wrap(obj);
 
         // Appel du service item pour la validation des données puis l'ajout en bdd
-        return itemService.addItem(data.optString("name"),
+        return ItemService.addItem(data.optString("name"),
                 data.optString("description"),
                 data.optLong("idCategory"),
                 data.optString("reference"),
@@ -124,7 +104,7 @@ public class ItemController {
         JSONObject data = (JSONObject) JSONObject.wrap(obj);
 
         // Appel du service subitem pour la validation des données puis l'ajout en bdd
-        return subItemService.addSubItem(data.optString("reference"),
+        return SubItemService.addSubItem(data.optString("reference"),
                 data.optLong("idItem"),
                 files);
     }

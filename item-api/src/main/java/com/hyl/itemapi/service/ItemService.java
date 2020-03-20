@@ -31,6 +31,7 @@ public class ItemService {
         ItemService.itemDao = itemDao;
     }
 
+
     //************************************************** METHODES
     public static List<Item> getItemsByIdUser(long id) {
         return itemDao.findAllByIdUser(id);
@@ -76,7 +77,7 @@ public class ItemService {
         FileService.deleteFile(item);
     }
 
-    public Item addItem(String name, String description, long idCategory,
+    public static Item addItem(String name, String description, long idCategory,
                         String reference, long idUser, List<MultipartFile> files) {
 
         // Construction de l'item
@@ -112,7 +113,7 @@ public class ItemService {
      * Validation du nouvel item et de ses composants avant l'ajout en bdd
      * @param item Le nouvel item
      */
-    private void validAddItem(Item item) {
+    private static void validAddItem(Item item) {
         CustomValidator.validate(item, Item.AddValidation.class);
         item.getSubItems().forEach(SubItemService::validAddSubItem);
     }
