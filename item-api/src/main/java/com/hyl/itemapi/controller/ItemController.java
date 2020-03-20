@@ -1,10 +1,7 @@
 package com.hyl.itemapi.controller;
 
 import com.hyl.itemapi.exception.CustomBadRequestException;
-import com.hyl.itemapi.model.Category;
-import com.hyl.itemapi.model.Item;
-import com.hyl.itemapi.model.Picture;
-import com.hyl.itemapi.model.SubItem;
+import com.hyl.itemapi.model.*;
 import com.hyl.itemapi.model.validation.MultipartFileListValidation;
 import com.hyl.itemapi.service.*;
 import org.slf4j.Logger;
@@ -248,8 +245,8 @@ public class ItemController {
     }
 
     @DeleteMapping("/delete-tracking-sheets")
-    public void deleteTrackingSheets() {
-        // TODO
+    public SubItem deleteTrackingSheets(@RequestParam List<String> ids, @Autowired HttpServletRequest request) {
+        return TrackingSheetService.deleteTrackingSheetsById(ids, extractIdUserFromHeader(request));
     }
 
 
