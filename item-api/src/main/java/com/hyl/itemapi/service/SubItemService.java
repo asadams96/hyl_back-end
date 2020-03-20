@@ -4,6 +4,7 @@ import com.hyl.itemapi.dao.SubItemDao;
 import com.hyl.itemapi.exception.CustomNotFoundException;
 import com.hyl.itemapi.model.Item;
 import com.hyl.itemapi.model.SubItem;
+import com.hyl.itemapi.model.TrackingSheet;
 import com.hyl.itemapi.model.validation.CustomValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -53,8 +54,28 @@ public class SubItemService {
     }
 
     public static void deleteSubItem(SubItem subItem) {
-        CustomValidator.validate(subItem, SubItem.OwnerValidation.class);
+
+        // Si c'est le dernier subitem de l'item -> true -> l'item sera aussi supprimé
+        boolean deleteItem = subItem.getItem().getSubItems().size() == 1;
+
+        // Suppresion du subitem de la liste des subitems de l'item (pour que la suppresion en bdd fonctionne -> cascade)
+        subItem.getItem().getSubItems().remove(subItem);
+
+        // Suppression des fiches de suivi du subitem
+        List<TrackingSheet> trackingSheets = new ArrayList<>(subItem.getTrackingSheets());
+        trackingSheets.forEach(trackingSheet -> {
+            subItem.getTrackingSheets().remove(trackingSheet);
+            TrackingSheetService.deleteTrackingSheet(trackingSheet);
+        });
+
+        // Suppresion du subitem
         subItemDao.delete(subItem);
+
+        // Suppresion du répertoire contenant les images
+        FileService.deleteFile(subItem);
+
+        // Si c'est le dernier subitem de l'item -> true -> l'item sera aussi supprimé
+        if (deleteItem) ItemService.deleteItem(subItem.getItem().getId());
     }
 
     public static SubItem editSubItem(String reference, SubItem subItem,

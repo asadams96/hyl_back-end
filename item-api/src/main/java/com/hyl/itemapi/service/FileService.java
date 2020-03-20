@@ -1,9 +1,10 @@
 package com.hyl.itemapi.service;
 
 import com.hyl.itemapi.exception.CustomInternalServerErrorException;
+import com.hyl.itemapi.model.AuthorizedFileContentType;
+import com.hyl.itemapi.model.Item;
 import com.hyl.itemapi.model.Picture;
 import com.hyl.itemapi.model.SubItem;
-import com.hyl.itemapi.model.AuthorizedFileContentType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -72,6 +73,17 @@ public class FileService {
         }
         return urlTable;
 
+    }
+
+    protected static void deleteFile(Item item) {
+        String url = "user"+item.getIdUser()+"/item"+item.getId();
+        new File(URI.create(localUrl + url)).delete();
+    }
+
+    protected static void deleteFile(SubItem subItem) {
+        if (subItem.getUrlImages() != null) subItem.getUrlImages().forEach(FileService::deleteFile);
+        String url = "user"+subItem.getItem().getIdUser()+"/item"+subItem.getItem().getId()+"/sub"+subItem.getId();
+        new File(URI.create(localUrl + url)).delete();
     }
 
     protected static void deleteFile(Picture picture) {

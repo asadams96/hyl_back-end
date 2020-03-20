@@ -32,4 +32,8 @@ public class TrackingSheetService {
         CustomValidator.validate(trackingSheet, TrackingSheet.AddValidation.class);
         trackingSheetDao.save(trackingSheet);
     }
+
+    public static void deleteTrackingSheet(TrackingSheet trackingSheet) {
+        trackingSheetDao.delete(trackingSheet);
+    }
 }

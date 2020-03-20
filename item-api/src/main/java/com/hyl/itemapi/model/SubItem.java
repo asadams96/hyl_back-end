@@ -22,7 +22,6 @@ public class SubItem {
     //************************************************** GROUPE DE VALIDATION
     public interface AddValidation {}
     public interface UpdateValidation {}
-    public interface OwnerValidation {}
 
 
     //************************************************** PARAMETRES
@@ -39,13 +38,13 @@ public class SubItem {
     private String reference;
 
     @Size(max = 0, message = "{hyl.subitem.trackingsheets.error.size}", groups = {AddValidation.class})
-    @OneToMany(targetEntity = TrackingSheet.class, mappedBy = "subItem", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @OneToMany(targetEntity = TrackingSheet.class, mappedBy = "subItem", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<TrackingSheet> trackingSheets;
 
     @OneToMany(targetEntity = Picture.class, mappedBy = "subItem", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Picture> urlImages;
 
-    @IdOwnerConstraint(groups = {AddValidation.class, UpdateValidation.class, OwnerValidation.class})
+    @IdOwnerConstraint(groups = {AddValidation.class, UpdateValidation.class})
     @NotNull(message = "{hyl.subitem.item.error.notnull}", groups = {AddValidation.class})
     @ManyToOne(targetEntity = Item.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "id_item")

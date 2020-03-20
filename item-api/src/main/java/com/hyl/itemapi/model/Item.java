@@ -47,7 +47,7 @@ public class Item {
     private Category category;
 
     @Size(min = 1, message = "{hyl.item.subitems.error.size}", groups = {AddValidation.class})
-    @OneToMany(targetEntity = SubItem.class, mappedBy = "item", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @OneToMany(targetEntity = SubItem.class, mappedBy = "item", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<SubItem> subItems;
 
     @Column(name = "id_usager")

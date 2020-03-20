@@ -67,12 +67,13 @@ public class ItemService {
     public static void deleteItem(long id) {
         Item item = getItemById(id);
         CustomValidator.validate(item, Item.OwnerValidation.class);
-        List<SubItem> subItems = item.getSubItems();
+        List<SubItem> subItems = new ArrayList<>(item.getSubItems());
         subItems.forEach(subItem -> {
             item.getSubItems().remove(subItem);
             SubItemService.deleteSubItem(subItem);
         });
         itemDao.delete(item);
+        FileService.deleteFile(item);
     }
 
     public Item addItem(String name, String description, long idCategory,
