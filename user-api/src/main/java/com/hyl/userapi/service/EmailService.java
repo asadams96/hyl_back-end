@@ -4,6 +4,7 @@ import com.hyl.userapi.exception.CustomInternalServerErrorException;
 import com.hyl.userapi.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -12,6 +13,7 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+@Transactional
 @Service
 public class EmailService {
 
