@@ -15,10 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import org.springframework.web.reactive.function.client.WebClientResponseException.BadRequest;
-import org.springframework.web.reactive.function.client.WebClientResponseException.InternalServerError;
-import org.springframework.web.reactive.function.client.WebClientResponseException.NotFound;
-import org.springframework.web.reactive.function.client.WebClientResponseException.Unauthorized;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -76,25 +72,27 @@ public class AuthenticationREST {
 
     @ExceptionHandler({WebClientResponseException.class})
     public ResponseEntity<?> handleException(WebClientResponseException exception) {
-        if (BadRequest.class.equals(exception.getClass())) {
+        int status = exception.getRawStatusCode();
+
+        if (HttpStatus.BAD_REQUEST.value() == status) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new CustomBadRequestException(exception.getMessage()));
+                    .body(new CustomBadRequestException(exception.toString()));
 
-        } else if (Unauthorized.class.equals(exception.getClass())) {
+        } else if (HttpStatus.UNAUTHORIZED.value() == status) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new CustomUnauthorizedException(exception.getMessage()));
+                    .body(new CustomUnauthorizedException(exception.toString()));
 
-        } else if (NotFound.class.equals(exception.getClass())) {
+        } else if (HttpStatus.NOT_FOUND.value() == status) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new CustomNotFoundException(exception.getMessage()));
+                    .body(new CustomNotFoundException(exception.toString()));
 
-        } else if (InternalServerError.class.equals(exception.getClass())) {
+        } else if (HttpStatus.INTERNAL_SERVER_ERROR.value() == status) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new CustomInternalServerErrorException(exception.getMessage()));
+                    .body(new CustomInternalServerErrorException(exception.toString()));
 
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new CustomInternalServerErrorException(exception.getMessage()));
+                    .body(new CustomInternalServerErrorException(exception.toString()));
         }
     }
 }
