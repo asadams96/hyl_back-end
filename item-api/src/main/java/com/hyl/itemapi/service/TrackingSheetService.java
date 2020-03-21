@@ -30,11 +30,12 @@ public class TrackingSheetService {
         TrackingSheetService.trackingSheetDao = trackingSheetDao;
     }
 
-    public static void addTrackingSheet(String comment, Long idSubItem) {
+    public static void addTrackingSheet(String comment, Long idSubItem, String reference) {
         TrackingSheet trackingSheet = new TrackingSheet();
         trackingSheet.setDate(new Date());
         trackingSheet.setComment(comment);
-        trackingSheet.setSubItem(SubItemService.getSubItemById(idSubItem));
+        trackingSheet.setSubItem(
+                idSubItem != null ? SubItemService.getSubItemById(idSubItem) : SubItemService.getSubItemByRef(reference));
         CustomValidator.validate(trackingSheet, TrackingSheet.AddValidation.class);
         trackingSheetDao.save(trackingSheet);
     }

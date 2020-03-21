@@ -5,16 +5,21 @@ import com.hyl.loanapi.exception.CustomBadRequestException;
 import com.hyl.loanapi.exception.CustomNotFoundException;
 import com.hyl.loanapi.model.Loan;
 import com.hyl.loanapi.model.State;
+import com.hyl.loanapi.proxy.ItemProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class LoanService {
 
     // ********************************************************* logger
@@ -23,12 +28,14 @@ public class LoanService {
 
     // ********************************************************* Bean
     private final LoanDao loanDao;
+    private final ItemProxy itemProxy;
 
 
     // ********************************************************* Constructeur
     @Autowired
-    public LoanService(LoanDao loanDao) {
+    public LoanService(LoanDao loanDao, ItemProxy itemProxy) {
         this.loanDao = loanDao;
+        this.itemProxy = itemProxy;
     }
 
 
@@ -57,11 +64,21 @@ public class LoanService {
         return this.loanDao.save(loan);
     }
 
-    public void closeLoan(Loan pLoan) {
+    public void closeLoan(Loan pLoan, long idUser, String token) {
         Loan loan = this.getLoan(pLoan.getId());
         loan.setEndDate(pLoan.getEndDate());
         loanDao.save(loan);
 
+        String comment = pLoan.getComment();
+        if (comment != null && !comment.isBlank()) {
+            HashMap<String, String> header = new HashMap<>();
+            header.put(HttpHeaders.AUTHORIZATION, token);
+            header.put("idUser", String.valueOf(idUser));
+            HashMap<String, String> body = new HashMap<>();
+            body.put("comment", comment);
+            body.put("reference", loan.getReference());
+            itemProxy.postComment(header, body);
+        }
     }
 
     public void deleteLoan(Loan loan) {

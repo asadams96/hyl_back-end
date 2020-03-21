@@ -6,9 +6,11 @@ import com.hyl.loanapi.model.Loan;
 import com.hyl.loanapi.model.State;
 import com.hyl.loanapi.model.validation.ValidCloseLoansListValidation;
 import com.hyl.loanapi.service.LoanService;
+import feign.FeignException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -56,9 +58,9 @@ public class LoanController {
     }
 
     @PostMapping("/close-loans")
-    public void closeLoan(@Validated(Loan.CloseValidation.class) @RequestBody ValidCloseLoansListValidation loans) {
-        // Todo S'il existe, le commentaire du prêt doit être enregistré auprès de item-api lorsqu'il sera opérationnel
-        loans.forEach(loanService::closeLoan);
+    public void closeLoan(@Validated(Loan.CloseValidation.class) @RequestBody ValidCloseLoansListValidation loans,
+                          @Autowired HttpServletRequest request) {
+        loans.forEach(loan -> loanService.closeLoan(loan, extractIdUserFromHeader(request), extractJWTFromHeader(request)));
     }
 
 
@@ -70,22 +72,22 @@ public class LoanController {
 
 
     // ********************************************************* SHARE
-    @ExceptionHandler(value = {CustomBadRequestException.class, CustomNotFoundException.class})
+    @ExceptionHandler(value = {CustomBadRequestException.class, CustomNotFoundException.class, FeignException.class})
     public ResponseEntity<?> handle(RuntimeException exception) {
-        if (exception.getCause() != null) exception = (RuntimeException) exception.getCause();
 
-        if (exception.getClass().equals(CustomBadRequestException.class)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body((exception.getCause() != null &&  exception.getCause().getMessage() != null
-                            ? exception.getCause().getMessage() : exception.getMessage()));
-        } else if (exception.getClass().equals(CustomNotFoundException.class)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body((exception.getCause() != null &&  exception.getCause().getMessage() != null
-                            ? exception.getCause().getMessage() : exception.getMessage()));
+        String className = exception.getClass().getName();
+        if (className.contains("$")) {
+            className = className.substring(0, className.indexOf("$"));
+        }
+
+        if (className.equals(CustomBadRequestException.class.getName())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exception);
+        } else if (className.equals(CustomNotFoundException.class.getName())) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception);
+        } else if (className.equals(FeignException.class.getName())) {
+            return ResponseEntity.status(((FeignException) exception).status()).body(exception);
         } else {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body((exception.getCause() != null &&  exception.getCause().getMessage() != null
-                            ? exception.getCause().getMessage() : exception.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(exception);
         }
     }
 
@@ -100,5 +102,13 @@ public class LoanController {
         } catch (NumberFormatException e) {
             throw new CustomBadRequestException("L'id de l'utilisateur doit être un nombre.");
         }
+    }
+
+    private static String extractJWTFromHeader (HttpServletRequest request) {
+        String token = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (token == null || token.isBlank()) {
+            throw new CustomBadRequestException("Aucun token n'est spécifié dans le header 'AUTHORIZATION' de la requête.");
+        }
+        return token;
     }
 }

@@ -65,7 +65,6 @@ public class Loan {
     private Date reminder;
 
     // Todo Récupérer la valeur lorsque item-api opérationnel
-    // Todo Enregistrer la valeur de comment si renseigné lors d'un 'close-loan'
     @Transient
     private String comment;
 

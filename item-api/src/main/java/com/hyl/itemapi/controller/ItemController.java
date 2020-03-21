@@ -1,9 +1,15 @@
 package com.hyl.itemapi.controller;
 
 import com.hyl.itemapi.exception.CustomBadRequestException;
-import com.hyl.itemapi.model.*;
+import com.hyl.itemapi.model.Category;
+import com.hyl.itemapi.model.Item;
+import com.hyl.itemapi.model.Picture;
+import com.hyl.itemapi.model.SubItem;
 import com.hyl.itemapi.model.validation.MultipartFileListValidation;
-import com.hyl.itemapi.service.*;
+import com.hyl.itemapi.service.CategoryService;
+import com.hyl.itemapi.service.ItemService;
+import com.hyl.itemapi.service.SubItemService;
+import com.hyl.itemapi.service.TrackingSheetService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,10 +118,16 @@ public class ItemController {
     @PostMapping("/add-tracking-sheet")
     public SubItem addTrackingSheet(@RequestBody HashMap<String, String> hashMap) {
         String comment = hashMap.get("comment");
+        String reference = hashMap.get("reference");
         Long idSubItem = hashMap.get("idSubItem") != null ? Long.parseLong(hashMap.get("idSubItem")) : null;
-        if (idSubItem == null) throw new CustomBadRequestException("Le paramètre idSubItem ne peut pas être null");
-        TrackingSheetService.addTrackingSheet(comment, idSubItem);
-        return SubItemService.getSubItemById(idSubItem);
+
+        if (idSubItem == null && (reference == null || reference.isBlank()))
+            throw new CustomBadRequestException("Les paramètres 'idSubItem' et 'reference' sont null," +
+                    " au moins un des deux doit posséder une valeur pour identifier l'objet subitem concerné.");
+
+        TrackingSheetService.addTrackingSheet(comment, idSubItem, reference);
+
+        return (idSubItem != null ? SubItemService.getSubItemById(idSubItem) : SubItemService.getSubItemByRef(reference));
     }
 
 
@@ -233,7 +245,7 @@ public class ItemController {
     //************************************************** SHARE
     @ExceptionHandler(NumberFormatException.class)
     public ResponseEntity<?> handle (NumberFormatException e) {
-        return ResponseEntity.badRequest().body(new CustomBadRequestException(e));
+        return ResponseEntity.badRequest().body(e);
     }
 
     public static long extractIdUserFromHeader (HttpServletRequest request) {
@@ -241,11 +253,6 @@ public class ItemController {
         if ( idUserStr == null ) {
             throw new CustomBadRequestException("Aucun utilisateur n'est spécifié dans le header 'idUser' de la requête.");
         }
-
-        try {
-            return Long.parseLong(idUserStr);
-        } catch (NumberFormatException e) {
-            throw new CustomBadRequestException("L'id de l'utilisateur doit être un nombre.");
-        }
+        return Long.parseLong(idUserStr);
     }
 }

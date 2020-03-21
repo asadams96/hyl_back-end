@@ -153,4 +153,11 @@ public class SubItemService {
         if ( optSubItem.isPresent() ) return optSubItem.get();
         else throw new CustomNotFoundException("L'objet SubItem avec pour id="+id+" n'a pas été trouvé.");
     }
+
+     public static SubItem getSubItemByRef(String reference) {
+        Optional<SubItem> optSubItem = subItemDao.findByReference(reference);
+        if ( optSubItem.isPresent() ) return optSubItem.get();
+        else throw new CustomNotFoundException("L'objet SubItem avec pour reference="+reference+" n'a pas été trouvé.");
+    }
+
 }
