@@ -59,8 +59,13 @@ public class LoanService {
         }
     }
 
-    public Loan addLoan(long idOwner, Loan loan) {
+    public Loan addLoan(long idOwner, String token, Loan loan) {
         loan.setIdOwner(idOwner);
+        HashMap<String, String> header = new HashMap<>();
+        header.put(HttpHeaders.AUTHORIZATION, token);
+        header.put("idUser", String.valueOf(idOwner));
+        if (!itemProxy.checkReference(header, loan.getReference()))
+            throw new CustomNotFoundException("L'objet subitem avec reference="+loan.getReference()+" n'a pas été trouvé.");
         return this.loanDao.save(loan);
     }
 
@@ -83,5 +88,9 @@ public class LoanService {
 
     public void deleteLoan(Loan loan) {
         loanDao.delete(loan);
+    }
+
+    public boolean isAlreadyInProgressByRef(String reference) {
+        return loanDao.findByReferenceAndEndDateIsNull(reference).isPresent();
     }
 }

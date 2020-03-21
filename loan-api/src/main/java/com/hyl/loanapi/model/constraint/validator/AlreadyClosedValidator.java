@@ -1,5 +1,6 @@
 package com.hyl.loanapi.model.constraint.validator;
 
+import com.hyl.loanapi.exception.CustomNotFoundException;
 import com.hyl.loanapi.model.Loan;
 import com.hyl.loanapi.model.constraint.AlreadyClosedConstraint;
 import com.hyl.loanapi.service.LoanService;
@@ -19,7 +20,13 @@ public class AlreadyClosedValidator implements ConstraintValidator<AlreadyClosed
     }
 
     @Override
-    public boolean isValid(Loan loan, ConstraintValidatorContext context) {
-       return loanService.getLoan(loan.getId()).getEndDate() == null;
+    public boolean isValid(Loan pLoan, ConstraintValidatorContext context) {
+        Loan loan;
+        try {
+            loan = loanService.getLoan(pLoan.getId());
+        } catch (CustomNotFoundException e) {
+            return false;
+        }
+       return loan.getEndDate() == null;
     }
 }

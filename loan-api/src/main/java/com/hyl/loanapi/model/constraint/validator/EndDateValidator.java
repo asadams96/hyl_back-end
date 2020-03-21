@@ -1,5 +1,6 @@
 package com.hyl.loanapi.model.constraint.validator;
 
+import com.hyl.loanapi.exception.CustomNotFoundException;
 import com.hyl.loanapi.model.Loan;
 import com.hyl.loanapi.model.constraint.EndDateConstraint;
 import com.hyl.loanapi.service.LoanService;
@@ -20,7 +21,12 @@ public class EndDateValidator implements ConstraintValidator<EndDateConstraint, 
 
     @Override
     public boolean isValid(Loan pLoan, ConstraintValidatorContext context) {
-        Loan loan = loanService.getLoan(pLoan.getId());
+        Loan loan;
+        try {
+            loan = loanService.getLoan(pLoan.getId());
+        } catch (CustomNotFoundException e) {
+            return false;
+        }
         return loan.getStartDate().before(pLoan.getEndDate());
     }
 }

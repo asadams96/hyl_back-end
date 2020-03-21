@@ -43,9 +43,9 @@ public class Loan {
     @Column(name = "end_date")
     private Date endDate;
 
-    // Todo Vérifier que la référence existe bien lorsque item-api opérationnel pour un 'add-loan'
     @NotBlank(message = "{hyl.loan.reference.error.notblank}", groups = {AddValidation.class})
     @Length(min = 5, max = 15, message = "{hyl.loan.reference.error.length}", groups = {AddValidation.class})
+    @ReferenceConstraint(groups = {AddValidation.class})
     @Column(name = "reference")
     private String reference;
 

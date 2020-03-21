@@ -54,7 +54,7 @@ public class LoanController {
     @PostMapping("/add-loan")
     public Loan addLoan(@Autowired HttpServletRequest request,
                         @Validated(Loan.AddValidation.class) @RequestBody Loan loan) {
-        return loanService.addLoan(extractIdUserFromHeader(request), loan);
+        return loanService.addLoan(extractIdUserFromHeader(request), extractJWTFromHeader(request), loan);
     }
 
     @PostMapping("/close-loans")
@@ -104,7 +104,7 @@ public class LoanController {
         }
     }
 
-    private static String extractJWTFromHeader (HttpServletRequest request) {
+    public static String extractJWTFromHeader (HttpServletRequest request) {
         String token = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (token == null || token.isBlank()) {
             throw new CustomBadRequestException("Aucun token n'est spécifié dans le header 'AUTHORIZATION' de la requête.");
