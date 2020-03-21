@@ -64,7 +64,6 @@ public class Loan {
     @Column(name = "reminder")
     private Date reminder;
 
-    // Todo Récupérer la valeur lorsque item-api opérationnel
     @Transient
     private String comment;
 

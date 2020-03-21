@@ -30,10 +30,19 @@ public class TrackingSheetService {
         TrackingSheetService.trackingSheetDao = trackingSheetDao;
     }
 
-    public static void addTrackingSheet(String comment, Long idSubItem, String reference) {
+
+    //************************************************** METHODE
+    public static String getCommentByIdLoan(Long idLoan) {
+        if (idLoan == null) return  null;
+        Optional<TrackingSheet> optSheet=  trackingSheetDao.findByIdLoan(idLoan);
+        return optSheet.map(TrackingSheet::getComment).orElse(null);
+    }
+
+    public static void addTrackingSheet(String comment, Long idSubItem, String reference, Long idLoan) {
         TrackingSheet trackingSheet = new TrackingSheet();
         trackingSheet.setDate(new Date());
         trackingSheet.setComment(comment);
+        trackingSheet.setIdLoan(idLoan);
         trackingSheet.setSubItem(
                 idSubItem != null ? SubItemService.getSubItemById(idSubItem) : SubItemService.getSubItemByRef(reference));
         CustomValidator.validate(trackingSheet, TrackingSheet.AddValidation.class);

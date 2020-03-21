@@ -17,4 +17,8 @@ public interface ItemProxy {
     @GetMapping("/check-sub-ref")
     boolean checkReference(@RequestHeader HashMap<String, String> headerMap,
                            @RequestParam String reference);
+
+    @GetMapping("/get-comment")
+    String getComment(@RequestHeader HashMap<String, String> headerMap,
+                      @RequestParam Long idLoan);
 }

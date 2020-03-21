@@ -49,6 +49,11 @@ public class ItemController {
         return !SubItemService.checkAtomicRef(reference);
     }
 
+    @GetMapping("/get-comment")
+    public String getComment(@RequestParam Long idLoan) {
+        return TrackingSheetService.getCommentByIdLoan(idLoan);
+    }
+
     @GetMapping("/")
     public Category getMainCategory(@Autowired HttpServletRequest request) {
         return CategoryService.getMainCategory(extractIdUserFromHeader(request));
@@ -120,12 +125,13 @@ public class ItemController {
         String comment = hashMap.get("comment");
         String reference = hashMap.get("reference");
         Long idSubItem = hashMap.get("idSubItem") != null ? Long.parseLong(hashMap.get("idSubItem")) : null;
+        Long idLoan = hashMap.get("idLoan") != null ? Long.parseLong(hashMap.get("idLoan")) : null;
 
         if (idSubItem == null && (reference == null || reference.isBlank()))
             throw new CustomBadRequestException("Les paramètres 'idSubItem' et 'reference' sont null," +
                     " au moins un des deux doit posséder une valeur pour identifier l'objet subitem concerné.");
 
-        TrackingSheetService.addTrackingSheet(comment, idSubItem, reference);
+        TrackingSheetService.addTrackingSheet(comment, idSubItem, reference, idLoan);
 
         return (idSubItem != null ? SubItemService.getSubItemById(idSubItem) : SubItemService.getSubItemByRef(reference));
     }

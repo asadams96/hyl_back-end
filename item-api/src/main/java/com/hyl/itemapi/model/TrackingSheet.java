@@ -1,6 +1,7 @@
 package com.hyl.itemapi.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.hyl.itemapi.model.constraint.AtomicIdLoanConstraint;
 import com.hyl.itemapi.model.constraint.IdOwnerConstraint;
 import org.hibernate.validator.constraints.Length;
 
@@ -43,6 +44,10 @@ public class TrackingSheet {
     @JoinColumn(name = "id_subitem")
     @JsonIgnore
     private SubItem subItem;
+
+    @AtomicIdLoanConstraint(groups = {AddValidation.class})
+    @Column(name = "id_loan")
+    private Long idLoan;
 
     @Transient @JsonIgnore
     private SimpleDateFormat simpleDateFormat;
@@ -87,6 +92,13 @@ public class TrackingSheet {
         this.subItem = subItem;
     }
 
+    public Long getIdLoan() {
+        return idLoan;
+    }
+
+    public void setIdLoan(Long idLoan) {
+        this.idLoan = idLoan;
+    }
 
     //************************************************** TO STRING
     @Override
@@ -96,6 +108,7 @@ public class TrackingSheet {
                 ", date=" + (date != null ? simpleDateFormat.format(date) : null) +
                 ", comment='" + comment + '\'' +
                 ", subItem.id=" + (subItem != null ? subItem.getId() : null) +
+                ", idLoan='" + idLoan + '\'' +
                 '}';
     }
 }

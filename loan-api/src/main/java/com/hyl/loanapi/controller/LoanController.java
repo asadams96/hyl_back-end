@@ -41,12 +41,12 @@ public class LoanController {
     // ********************************************************* GET
     @GetMapping("/in-progress")
     public List<Loan> getLoansInProgress(@Autowired HttpServletRequest request) {
-        return loanService.getLoans(extractIdUserFromHeader(request), State.IN_PROGRESS);
+        return loanService.getLoans(extractIdUserFromHeader(request), State.IN_PROGRESS, null);
     }
 
     @GetMapping("/terminated")
     public List<Loan> getLoansTerminated(@Autowired HttpServletRequest request) {
-        return loanService.getLoans(extractIdUserFromHeader(request), State.TERMINATED);
+        return loanService.getLoans(extractIdUserFromHeader(request), State.TERMINATED, extractJWTFromHeader(request));
     }
 
 

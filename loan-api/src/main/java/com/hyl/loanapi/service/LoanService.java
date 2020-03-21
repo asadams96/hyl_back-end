@@ -48,12 +48,17 @@ public class LoanService {
 
     }
 
-    public List<Loan> getLoans(long idOwner, State state) {
+    public List<Loan> getLoans(long idOwner, State state, String token) {
         switch (state) {
             case IN_PROGRESS:
                 return loanDao.findAllByIdOwnerAndEndDateIsNull(idOwner);
             case TERMINATED:
-                return loanDao.findAllByIdOwnerAndEndDateIsNotNull(idOwner);
+                HashMap<String, String> header = new HashMap<>();
+                header.put(HttpHeaders.AUTHORIZATION, token);
+                header.put("idUser", String.valueOf(idOwner));
+                List<Loan> loans = loanDao.findAllByIdOwnerAndEndDateIsNotNull(idOwner);
+                loans.forEach(loan -> loan.setComment(itemProxy.getComment(header, loan.getId())));
+                return loans;
             default:
                 return new ArrayList<>();
         }
@@ -82,6 +87,7 @@ public class LoanService {
             HashMap<String, String> body = new HashMap<>();
             body.put("comment", comment);
             body.put("reference", loan.getReference());
+            body.put("idLoan", String.valueOf(loan.getId()));
             itemProxy.postComment(header, body);
         }
     }
