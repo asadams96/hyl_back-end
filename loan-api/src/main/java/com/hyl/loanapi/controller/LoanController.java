@@ -17,6 +17,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -61,6 +62,21 @@ public class LoanController {
     public void closeLoan(@Validated(Loan.CloseValidation.class) @RequestBody ValidCloseLoansListValidation loans,
                           @Autowired HttpServletRequest request) {
         loans.forEach(loan -> loanService.closeLoan(loan, extractIdUserFromHeader(request), extractJWTFromHeader(request)));
+    }
+
+
+    // ********************************************************* PATCH
+    @PatchMapping(value = "/update-reference")
+    public void updateReference(@RequestBody HashMap<String, String> hashMap) {
+        String oldReference = hashMap.get("oldReference");
+        String newReference = hashMap.get("newReference");
+
+        if (oldReference == null || oldReference.isBlank())
+            throw new CustomBadRequestException("Le paramètre oldReference n'est pas présent.");
+        if (newReference == null || newReference.isBlank())
+            throw new CustomBadRequestException("Le paramètre newReference n'est pas présent.");
+
+        loanService.updateReferenceInLoans(oldReference, newReference);
     }
 
 

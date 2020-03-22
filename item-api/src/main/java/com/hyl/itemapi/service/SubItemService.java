@@ -6,15 +6,14 @@ import com.hyl.itemapi.model.Item;
 import com.hyl.itemapi.model.SubItem;
 import com.hyl.itemapi.model.TrackingSheet;
 import com.hyl.itemapi.model.validation.CustomValidator;
+import com.hyl.itemapi.proxy.LoanProxy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Transactional
@@ -23,22 +22,28 @@ public class SubItemService {
 
     //************************************************** DAO
     private static SubItemDao subItemDao;
+    private static LoanProxy loanProxy;
 
 
     //************************************************** CONSTRUCTEUR
     @Autowired
-    public SubItemService(SubItemDao subItemDao) {
+    public SubItemService(SubItemDao subItemDao, LoanProxy loanProxy) {
         SubItemService.subItemDao = subItemDao;
+        SubItemService.loanProxy = loanProxy;
     }
 
 
     //************************************************** METHODES
-    public static void renameSubItem(long idSubItem, String reference) {
+    public static void renameSubItem(long idSubItem, String reference, long idUser, String token) { // todo
         SubItem subItem = getSubItemById(idSubItem);
-        if (!subItem.getReference().equals(reference)) {
+        String oldReference = subItem.getReference();
+        if (!oldReference.equals(reference)) {
             subItem.setReference(reference);
             CustomValidator.validate(subItem, SubItem.UpdateValidation.class);
             subItemDao.save(subItem);
+
+            // Envoi d'une requête vers loan-api pour mettre à jour la référence dans les prêt
+            sendReferenceToLoanAPI(token, idUser, oldReference, reference);
         }
     }
 
@@ -79,10 +84,13 @@ public class SubItemService {
     }
 
     public static SubItem editSubItem(String reference, SubItem subItem,
-                                      List<Long> filesToDel, List<MultipartFile> files) {
+                                      List<Long> filesToDel, List<MultipartFile> files,
+                                      String token, long idUser) {
+
+        String oldReference = subItem.getReference();
 
         // Mise à jour de la référence si elle a changé
-        if (!subItem.getReference().equals(reference)) {
+        if (!oldReference.equals(reference)) {
             subItem.setReference(reference);
             CustomValidator.validate(subItem, SubItem.UpdateValidation.class);
         }
@@ -110,6 +118,11 @@ public class SubItemService {
 
             // Mise à jour de l'url des 'Picture' en bdd
             PictureService.majUrlPicture(urlTable);
+        }
+
+        // Envoi d'une requête vers loan-api pour mettre à jour la référence dans les prêt
+        if (!oldReference.equals(reference)) {
+            sendReferenceToLoanAPI(token, idUser, oldReference, reference);
         }
 
         // Renvoi du subitem mis à jour
@@ -158,6 +171,17 @@ public class SubItemService {
         Optional<SubItem> optSubItem = subItemDao.findByReference(reference);
         if ( optSubItem.isPresent() ) return optSubItem.get();
         else throw new CustomNotFoundException("L'objet SubItem avec pour reference="+reference+" n'a pas été trouvé.");
+    }
+
+    private static void sendReferenceToLoanAPI(String token, long idUser, String oldReference, String reference) {
+        // Envoi d'une requête vers loan-api pour mettre à jour la référence dans les prêt
+        HashMap<String, String> header = new HashMap<>();
+        header.put(HttpHeaders.AUTHORIZATION, token);
+        header.put("idUser", String.valueOf(idUser));
+        HashMap<String, String> body = new HashMap<>();
+        body.put("oldReference", oldReference);
+        body.put("newReference",reference);
+        loanProxy.updateReference(header, body);
     }
 
 }

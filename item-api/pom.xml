@@ -44,6 +44,15 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
+		</dependency>
+		<dependency>
+			<!-- Required to use PATCH -->
+			<groupId>io.github.openfeign</groupId>
+			<artifactId>feign-httpclient</artifactId>
+		</dependency>
 		<!-- Cache pour Spring Cloud LoadBalancer après la désactivation de Ribbon (déprécié)-->
 		<dependency>
 			<groupId>com.github.ben-manes.caffeine</groupId>

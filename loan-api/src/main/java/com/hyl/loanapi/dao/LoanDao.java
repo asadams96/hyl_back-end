@@ -12,4 +12,5 @@ public interface LoanDao extends JpaRepository<Loan, Long> {
     List<Loan> findAllByIdOwnerAndEndDateIsNull(long idOwner);
     List<Loan> findAllByIdOwnerAndEndDateIsNotNull(long idOwner);
     Optional<Loan> findByReferenceAndEndDateIsNull(String string);
+    List<Loan> findAllByReference(String reference);
 }

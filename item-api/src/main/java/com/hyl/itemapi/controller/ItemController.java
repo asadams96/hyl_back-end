@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -173,12 +174,12 @@ public class ItemController {
     }
 
     @PatchMapping("/rename-subitem")
-    public void renameSubItem(@RequestBody HashMap<String, String> hashMap) {
+    public void renameSubItem(@RequestBody HashMap<String, String> hashMap, @Autowired HttpServletRequest request) {
         Long idSubItem = hashMap.get("id") != null ? Long.parseLong(hashMap.get("id")) : null;
         String reference = hashMap.get("reference");
         if (idSubItem == null) throw new CustomBadRequestException("Le paramètre idSubItem ne peut pas être null");
         if (reference == null) throw new CustomBadRequestException("Le paramètre reference ne peut pas être null");
-        SubItemService.renameSubItem(idSubItem, reference);
+        SubItemService.renameSubItem(idSubItem, reference, extractIdUserFromHeader(request), extractJWTFromHeader(request));
     }
 
     @PatchMapping("/edit-subitem")
@@ -192,8 +193,11 @@ public class ItemController {
         // Récuprération du subitem en bdd
         SubItem subItem = SubItemService.getSubItemById(data.optLong("idSubItem"));
 
+        // IdUser dans la requête
+        long idUser = extractIdUserFromHeader(request);
+
         // Check manuellement si c'est bien le proprietaire du subitem qui est à l'origine de la requête (bug validateur)
-        if (subItem.getItem().getIdUser() != extractIdUserFromHeader(request)) {
+        if (subItem.getItem().getIdUser() != idUser) {
             throw new CustomBadRequestException("L'id renseigné dans le header ne correspond pas à l'id du propriétaire de l'objet.");
         }
 
@@ -218,7 +222,13 @@ public class ItemController {
         }
 
         // Appel du service subitem pour la validation des données puis l'ajout en bdd
-        return SubItemService.editSubItem(data.optString("reference"), subItem, filesToDel, files);
+        return SubItemService.editSubItem(
+                data.optString("reference"),
+                subItem,
+                filesToDel,
+                files,
+                extractJWTFromHeader(request),
+                idUser);
     }
 
     //************************************************** DELETE
@@ -260,5 +270,13 @@ public class ItemController {
             throw new CustomBadRequestException("Aucun utilisateur n'est spécifié dans le header 'idUser' de la requête.");
         }
         return Long.parseLong(idUserStr);
+    }
+
+    public static String extractJWTFromHeader (HttpServletRequest request) {
+        String token = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (token == null || token.isBlank()) {
+            throw new CustomBadRequestException("Aucun token n'est spécifié dans le header 'AUTHORIZATION' de la requête.");
+        }
+        return token;
     }
 }

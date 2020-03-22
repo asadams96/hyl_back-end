@@ -96,6 +96,14 @@ public class LoanService {
         loanDao.delete(loan);
     }
 
+    public void updateReferenceInLoans(String oldReference, String newReference) {
+        List<Loan> loans = loanDao.findAllByReference(oldReference);
+        if (!loans.isEmpty()) {
+            loans.forEach(loan -> loan.setReference(newReference));
+            loanDao.saveAll(loans);
+        }
+    }
+
     public boolean isAlreadyInProgressByRef(String reference) {
         return loanDao.findByReferenceAndEndDateIsNull(reference).isPresent();
     }
