@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -19,7 +19,10 @@ public class UserService {
         UserService.userDao = userDao;
     }
 
-    public static List<User> getAll() {
-        return userDao.findAll();
+
+    public static User getUserById(long idUser) {
+        Optional<User> optUser = userDao.findById(idUser);
+        if (optUser.isPresent()) return optUser.get();
+        else throw new RuntimeException("Utilisateur introuvable");
     }
 }

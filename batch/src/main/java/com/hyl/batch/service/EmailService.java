@@ -1,38 +1,99 @@
 package com.hyl.batch.service;
 
+import com.hyl.batch.model.Loan;
+import com.hyl.batch.model.Picture;
+import com.hyl.batch.model.SubItem;
+import com.hyl.batch.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.mail.Session;
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
+import javax.mail.*;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @Transactional
 @Service
 public class EmailService {
-    private final Session session;
+
+    private static Session session;
+    private static String localUrl;
+
 
     @Autowired
     public EmailService(Session session) {
-        this.session = session;
+        EmailService.session = session;
     }
 
 
-    public void sendReminder() {
-       /* String content = "<p>Bonjour " + (user.getCivility() != null ? user.getCivility()+". " : "")
+    @Value("${hyl.url.localstorage}")
+    public void setLocalUrl(String localUrl) {
+        EmailService.localUrl = localUrl;
+    }
+
+
+    public static void sendCallBack(Loan loan) {
+
+        User user = loan.getUser();
+        SubItem subItem = loan.getSubItem();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy à HH:mm:ss");
+        int nbrDay = (int) ((new Date().getTime() -  loan.getStartDate().getTime()) / (1000*60*60*24));
+
+        String content =
+                "<p>Bonjour " + (user.getCivility() != null ? user.getCivility()+". " : "")
                 + user.getSurname() + " " + user.getName() + ",</p>"
-                + "<p>Suite à votre demande, nous avons réintialisé votre mot de passe."
-                + "<br />À présent pour vous connecter, vous devez utiliser le mot de passe suivant : "
-                + "<strong>" + newPasswordNotEncrypted + "</strong></p>"
-                + "<p>Merci de nous faire confiance et d'utiliser HYL.</p>";
+                + "<p>Suite à votre demande,"
+                + "<br />Nous vous informons que le "
+                + "<strong>" + sdf.format(loan.getStartDate()) + "</strong> vous avez enregistré un prêt "
+                + "avec demande de rappel concernant l'objet <strong>" + subItem.getItem().getName()
+                + "</strong> ayant pour référence <strong>" + subItem.getReference() + "</strong> à "
+                + "l'intention de <strong>" + loan.getBeneficiary() + "</strong>."
+                + "<br />Vous avez donc prêté votre objet depuis <strong>" + nbrDay + "</strong> jours.</p>"
+                + "<p>Merci de nous faire confiance et d'utiliser <strong>HYL</strong>.</p>";
+
         try {
             Message message = new MimeMessage(session);
             message.setFrom();
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(user.getEmail()));
-            message.setSubject("[HYL] Réintialisation du mot de passe");
-            message.setContent(content, "text/html; charset=utf-8");
+            message.setSubject("[HYL] Rappel - Prêt en cours");
+
+            // Création d'un corps de message + ajout du contenu texte
+            BodyPart messageBodyPart = new MimeBodyPart();
+            messageBodyPart.setContent(content, "text/html; charset=utf-8");
+
+            //Création d'un message 'MultiPart' -> Corps + Pièce jointe
+            Multipart multipart = new MimeMultipart();
+            multipart.addBodyPart(messageBodyPart);
+
+            // Ajout des pièces jointes
+            if (subItem.getUrlImages() != null) {
+                subItem.getUrlImages().forEach(picture -> {
+                    try { addAttachment(multipart, picture); } catch (MessagingException ignored) {}
+                });
+            }
+
+            // Ajout du message multipart dans le message destiné à l'envoi
+            message.setContent(multipart);
+
+            // Envoi
             Transport.send(message);
-        } catch (MessagingException e) {
-            throw new CustomInternalServerErrorException(e.getMessage());
-        }*/
+
+        } catch (MessagingException ignored) {}
+    }
+
+    private static void addAttachment(Multipart multipart, Picture picture) throws MessagingException {
+        DataSource source = new FileDataSource( localUrl + picture.getUrl() );
+        BodyPart messageBodyPart = new MimeBodyPart();
+        messageBodyPart.setDataHandler(new DataHandler(source));
+        messageBodyPart.setFileName(picture.getName());
+        multipart.addBodyPart(messageBodyPart);
     }
 }

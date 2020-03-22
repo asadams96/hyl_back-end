@@ -1,7 +1,5 @@
 package com.hyl.batch.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -35,7 +33,12 @@ public class Loan {
     private Date reminder;
 
     @Transient
-    @JsonIgnore
+    private User user;
+
+    @Transient
+    private SubItem subItem;
+
+    @Transient
     private SimpleDateFormat simpleDateFormat;
 
 
@@ -102,17 +105,32 @@ public class Loan {
         this.reminder = reminder;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public SubItem getSubItem() {
+        return subItem;
+    }
+
+    public void setSubItem(SubItem subItem) {
+        this.subItem = subItem;
+    }
 
     //************************************************** TO STRING
     @Override
     public String toString() {
         return "Loan{" +
                 "id=" + id +
-                ", idOwner=" + idOwner +
                 ", startDate=" + (startDate != null ? simpleDateFormat.format(startDate) : null) +
                 ", endDate=" + (endDate != null ? simpleDateFormat.format(endDate) : null) +
-                ", reference='" + reference + '\'' +
                 ", beneficiary='" + beneficiary + '\'' +
+                ", user=" + user +
+                ", subItem=" + subItem +
                 ", reminder=" + (reminder != null ? simpleDateFormat.format(reminder) : null) +
                 '}';
     }

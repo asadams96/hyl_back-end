@@ -1,8 +1,7 @@
 package com.hyl.batch.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "subitem", schema = "item")
@@ -19,8 +18,10 @@ public class SubItem {
 
     @ManyToOne(targetEntity = Item.class)
     @JoinColumn(name = "id_item")
-    @JsonIgnore
     private Item item;
+
+    @OneToMany(targetEntity = Picture.class, mappedBy = "subItem", fetch = FetchType.EAGER)
+    private List<Picture> urlImages;
 
 
     //************************************************** GETTERS / SETTERS
@@ -48,6 +49,13 @@ public class SubItem {
         this.item = item;
     }
 
+    public List<Picture> getUrlImages() {
+        return urlImages;
+    }
+
+    public void setUrlImages(List<Picture> urlImages) {
+        this.urlImages = urlImages;
+    }
 
     //************************************************** TO STRING
     @Override
@@ -56,6 +64,8 @@ public class SubItem {
                 "id=" + id +
                 ", reference='" + reference + '\'' +
                 ", item.id=" + item.getId() +
+                ", urlImages=" + urlImages +
                 '}';
     }
+
 }
