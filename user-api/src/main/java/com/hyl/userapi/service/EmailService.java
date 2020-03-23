@@ -31,7 +31,7 @@ public class EmailService {
                         + "<p>Suite à votre demande, nous avons réintialisé votre mot de passe."
                         + "<br />À présent pour vous connecter, vous devez utiliser le mot de passe suivant : "
                         + "<strong>" + newPasswordNotEncrypted + "</strong></p>"
-                        + "<p>Merci de nous faire confiance et d'utiliser HYL.</p>";
+                        + "<p>Merci de nous faire confiance et d'utiliser <strong>HYL</strong>.</p>";
         try {
             Message message = new MimeMessage(session);
             message.setFrom();

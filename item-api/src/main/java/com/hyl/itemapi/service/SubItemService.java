@@ -34,16 +34,17 @@ public class SubItemService {
 
 
     //************************************************** METHODES
-    public static void renameSubItem(long idSubItem, String reference, long idUser, String token) { // todo
+    public static void renameSubItem(long idSubItem, String reference, long idUser, String token) {
         SubItem subItem = getSubItemById(idSubItem);
         String oldReference = subItem.getReference();
         if (!oldReference.equals(reference)) {
             subItem.setReference(reference);
             CustomValidator.validate(subItem, SubItem.UpdateValidation.class);
-            subItemDao.save(subItem);
 
             // Envoi d'une requête vers loan-api pour mettre à jour la référence dans les prêt
             sendReferenceToLoanAPI(token, idUser, oldReference, reference);
+
+            subItemDao.save(subItem);
         }
     }
 
@@ -109,6 +110,11 @@ public class SubItemService {
             }
         }
 
+        // Envoi d'une requête vers loan-api pour mettre à jour la référence dans les prêt
+        if (!oldReference.equals(reference)) {
+            sendReferenceToLoanAPI(token, idUser, oldReference, reference);
+        }
+
         // Mise à jour du subitem en bdd avec ses nouvelles images
         subItem = subItemDao.save(subItem);
 
@@ -118,11 +124,6 @@ public class SubItemService {
 
             // Mise à jour de l'url des 'Picture' en bdd
             PictureService.majUrlPicture(urlTable);
-        }
-
-        // Envoi d'une requête vers loan-api pour mettre à jour la référence dans les prêt
-        if (!oldReference.equals(reference)) {
-            sendReferenceToLoanAPI(token, idUser, oldReference, reference);
         }
 
         // Renvoi du subitem mis à jour
