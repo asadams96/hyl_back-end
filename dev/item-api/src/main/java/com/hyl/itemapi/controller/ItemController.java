@@ -50,6 +50,13 @@ public class ItemController {
         return !SubItemService.checkAtomicRef(reference);
     }
 
+    @GetMapping("/check-category-depth")
+    public boolean checkCategoryDepth(@RequestParam String idCategory, @RequestParam String idCategoryToMove, @RequestParam String type) {
+        Long idTargetCategory = !idCategory.equals("null") ? Long.parseLong(idCategory) : null;
+        Long idCategoryToMove0 = !idCategoryToMove.equals("null") ? Long.parseLong(idCategoryToMove) : null;
+      return CategoryService.checkCategoryDepthConstraintForFrontAsyncValidator(idCategoryToMove0, idTargetCategory, type);
+    }
+
     @GetMapping("/get-comment")
     public String getComment(@RequestParam Long idLoan) {
         return TrackingSheetService.getCommentByIdLoan(idLoan);
@@ -68,7 +75,7 @@ public class ItemController {
         String name = hashMap.get("name");
         Long idParent = hashMap.get("idParent") != null ? Long.parseLong(hashMap.get("idParent")) : null;
         if (name == null) throw new CustomBadRequestException("Le paramètre name ne peut pas être null");
-        return CategoryService.addChildCategory(name, idParent, extractIdUserFromHeader(request));
+        return CategoryService.addChildCategory(name, idParent, extractIdUserFromHeader(request), false);
     }
 
     @PostMapping("/add-parent-category")
@@ -78,7 +85,7 @@ public class ItemController {
         Long idChild = hashMap.get("idChild") != null ? Long.parseLong(hashMap.get("idChild")) : null;
         if (idChild == null) throw new CustomBadRequestException("Le paramètre idChild ne peut pas être null");
         if (name == null) throw new CustomBadRequestException("Le paramètre name ne peut pas être null");
-        return CategoryService.addParentCategory(name, idChild, extractIdUserFromHeader(request));
+        return CategoryService.addParentCategory(name, idChild, extractIdUserFromHeader(request), false);
     }
 
     @PostMapping("/add-item")
@@ -150,10 +157,10 @@ public class ItemController {
 
     @PatchMapping("/move-category")
     public void moveCategory(@RequestBody HashMap<String, String> hashMap) {
-        Long idCategory = hashMap.get("id") != null ? Long.parseLong(hashMap.get("id")) : null;
-        Long idCategoryDest = hashMap.get("idParent") != null ? Long.parseLong(hashMap.get("idParent")) : null;
+        Long idCategory = hashMap.get("id") != null && !hashMap.get("id").equals("null") ? Long.parseLong(hashMap.get("id")) : null;
+        Long idCategoryDest = hashMap.get("idParent") != null && !hashMap.get("idParent").equals("null") ? Long.parseLong(hashMap.get("idParent")) : null;
         if (idCategory == null) throw new CustomBadRequestException("Le paramètre id ne peut pas être null");
-        CategoryService.moveCategory(idCategory, idCategoryDest);
+        CategoryService.moveCategory(idCategory, idCategoryDest, false);
     }
 
     @PatchMapping("/rename-item")
