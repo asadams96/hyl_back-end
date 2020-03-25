@@ -42,6 +42,7 @@ public class WebSecurityConfig {
                 .securityContextRepository(securityContextRepository)
                 .authorizeExchange()
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
+                .pathMatchers("/item/hyl-img-pages/**").permitAll()
                 .pathMatchers("/signin").permitAll()
                 .pathMatchers("/signup").permitAll()
                 .pathMatchers("/forgot-password").permitAll()
