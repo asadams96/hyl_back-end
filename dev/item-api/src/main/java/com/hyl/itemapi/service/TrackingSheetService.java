@@ -38,13 +38,13 @@ public class TrackingSheetService {
         return optSheet.map(TrackingSheet::getComment).orElse(null);
     }
 
-    public static void addTrackingSheet(String comment, Long idSubItem, String reference, Long idLoan) {
+    public static void addTrackingSheet(String comment, Long idSubItem, String reference, Long idLoan, long idUser) {
         TrackingSheet trackingSheet = new TrackingSheet();
         trackingSheet.setDate(new Date());
         trackingSheet.setComment(comment);
         trackingSheet.setIdLoan(idLoan);
         trackingSheet.setSubItem(
-                idSubItem != null ? SubItemService.getSubItemById(idSubItem) : SubItemService.getSubItemByRef(reference));
+                idSubItem != null ? SubItemService.getSubItemById(idSubItem) : SubItemService.getSubItemByRef(reference, idUser));
         CustomValidator.validate(trackingSheet, TrackingSheet.AddValidation.class);
         trackingSheetDao.save(trackingSheet);
     }

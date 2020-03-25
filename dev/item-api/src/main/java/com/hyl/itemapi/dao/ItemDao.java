@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @RepositoryRestResource(exported = false)
 public interface ItemDao extends JpaRepository<Item, Long> {
-    Optional<Item> findByName(String name);
+    Optional<Item> findByNameAndIdUser(String name, long idUser);
     List<Item> findAllByIdUser(long idUser);
     List<Item> findAllByIdUserAndCategoryIsNull(long idUser);
 }

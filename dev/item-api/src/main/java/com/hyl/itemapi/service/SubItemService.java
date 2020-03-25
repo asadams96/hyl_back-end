@@ -158,8 +158,12 @@ public class SubItemService {
         }
     }
 
-    public static boolean checkAtomicRef(String reference) {
-        return subItemDao.findByReference(reference).isEmpty();
+    public static boolean checkAtomicRef(String reference, long idUser) {
+        List<SubItem> subItems = subItemDao.findByReference(reference);
+        for (SubItem subItem : subItems) {
+            if (subItem.getItem().getIdUser() == idUser) return false;
+        }
+        return true;
     }
 
     public static SubItem getSubItemById(long id) {
@@ -168,10 +172,13 @@ public class SubItemService {
         else throw new CustomNotFoundException("L'objet SubItem avec pour id="+id+" n'a pas été trouvé.");
     }
 
-     public static SubItem getSubItemByRef(String reference) {
-        Optional<SubItem> optSubItem = subItemDao.findByReference(reference);
-        if ( optSubItem.isPresent() ) return optSubItem.get();
-        else throw new CustomNotFoundException("L'objet SubItem avec pour reference="+reference+" n'a pas été trouvé.");
+     public static SubItem getSubItemByRef(String reference, long idUser) {
+         List<SubItem> subItems = subItemDao.findByReference(reference);
+         for (SubItem subItem : subItems) {
+             if (subItem.getItem().getIdUser() == idUser) return subItem;
+         }
+         throw new CustomNotFoundException("L'objet SubItem avec pour reference="+reference
+                                                +" et pour id_utilisateur="+idUser+" n'a pas été trouvé.");
     }
 
     private static void sendReferenceToLoanAPI(String token, long idUser, String oldReference, String reference) {

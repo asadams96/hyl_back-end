@@ -9,6 +9,6 @@ import java.util.Optional;
 
 @RepositoryRestResource(exported = false)
 public interface CategoryDao extends JpaRepository<Category, Long> {
-    Optional<Category> findByName(String name);
+    Optional<Category> findByNameAndIdUser(String name, long idUser);
     List<Category> findAllByIdUserAndCategoryParentIsNull(long idUser);
 }

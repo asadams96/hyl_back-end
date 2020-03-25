@@ -130,8 +130,8 @@ public class CategoryService {
         categoryDao.delete(category);
     }
 
-    public static boolean checkAtomicName(String name) {
-        return categoryDao.findByName(name).isEmpty();
+    public static boolean checkAtomicName(String name, long idUser) {
+        return categoryDao.findByNameAndIdUser(name, idUser).isEmpty();
     }
 
     public static boolean checkCategoryDepthConstraintForFrontAsyncValidator

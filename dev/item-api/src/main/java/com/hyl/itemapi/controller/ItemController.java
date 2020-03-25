@@ -36,18 +36,18 @@ public class ItemController {
 
     //************************************************** GET
     @GetMapping("/check-category-name")
-    public boolean checkAtomicCategoryName(@RequestParam String name) {
-        return !CategoryService.checkAtomicName(name);
+    public boolean checkAtomicCategoryName(@RequestParam String name, @Autowired HttpServletRequest request) {
+        return !CategoryService.checkAtomicName(name, extractIdUserFromHeader(request));
     }
 
     @GetMapping("/check-item-name")
-    public boolean checkAtomicItemName(@RequestParam String name) {
-        return !ItemService.checkAtomicName(name);
+    public boolean checkAtomicItemName(@RequestParam String name, @Autowired HttpServletRequest request) {
+        return !ItemService.checkAtomicName(name, extractIdUserFromHeader(request));
     }
 
     @GetMapping("/check-sub-ref")
-    public boolean checkAtomicSubItemRef(@RequestParam String reference) {
-        return !SubItemService.checkAtomicRef(reference);
+    public boolean checkAtomicSubItemRef(@RequestParam String reference, @Autowired HttpServletRequest request) {
+        return !SubItemService.checkAtomicRef(reference, extractIdUserFromHeader(request));
     }
 
     @GetMapping("/check-category-depth")
@@ -129,19 +129,21 @@ public class ItemController {
     }
 
     @PostMapping("/add-tracking-sheet")
-    public SubItem addTrackingSheet(@RequestBody HashMap<String, String> hashMap) {
+    public SubItem addTrackingSheet(@RequestBody HashMap<String, String> hashMap, @Autowired HttpServletRequest request) {
         String comment = hashMap.get("comment");
         String reference = hashMap.get("reference");
         Long idSubItem = hashMap.get("idSubItem") != null ? Long.parseLong(hashMap.get("idSubItem")) : null;
         Long idLoan = hashMap.get("idLoan") != null ? Long.parseLong(hashMap.get("idLoan")) : null;
+        long idUser = extractIdUserFromHeader(request);
 
         if (idSubItem == null && (reference == null || reference.isBlank()))
             throw new CustomBadRequestException("Les paramètres 'idSubItem' et 'reference' sont null," +
                     " au moins un des deux doit posséder une valeur pour identifier l'objet subitem concerné.");
 
-        TrackingSheetService.addTrackingSheet(comment, idSubItem, reference, idLoan);
+        TrackingSheetService.addTrackingSheet(comment, idSubItem, reference, idLoan, idUser);
 
-        return (idSubItem != null ? SubItemService.getSubItemById(idSubItem) : SubItemService.getSubItemByRef(reference));
+        return (idSubItem != null ? SubItemService.getSubItemById(idSubItem)
+                : SubItemService.getSubItemByRef(reference, idUser));
     }
 
 
