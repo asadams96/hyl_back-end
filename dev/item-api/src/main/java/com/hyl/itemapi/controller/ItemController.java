@@ -57,6 +57,11 @@ public class ItemController {
       return CategoryService.checkCategoryDepthConstraintForFrontAsyncValidator(idCategoryToMove0, idTargetCategory, type);
     }
 
+    @GetMapping("/check-max-sub")
+    public boolean checkMaxSubItemByUser(@Autowired HttpServletRequest request) {
+        return !SubItemService.maxSubItemByUserIsValid(extractIdUserFromHeader(request));
+    }
+
     @GetMapping("/get-comment")
     public String getComment(@RequestParam Long idLoan) {
         return TrackingSheetService.getCommentByIdLoan(idLoan);

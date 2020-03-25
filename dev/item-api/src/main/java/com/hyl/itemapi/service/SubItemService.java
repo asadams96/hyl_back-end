@@ -1,5 +1,6 @@
 package com.hyl.itemapi.service;
 
+import com.hyl.itemapi.controller.ItemController;
 import com.hyl.itemapi.dao.SubItemDao;
 import com.hyl.itemapi.exception.CustomNotFoundException;
 import com.hyl.itemapi.model.Item;
@@ -8,6 +9,7 @@ import com.hyl.itemapi.model.TrackingSheet;
 import com.hyl.itemapi.model.validation.CustomValidator;
 import com.hyl.itemapi.proxy.LoanProxy;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +32,16 @@ public class SubItemService {
     public SubItemService(SubItemDao subItemDao, LoanProxy loanProxy) {
         SubItemService.subItemDao = subItemDao;
         SubItemService.loanProxy = loanProxy;
+    }
+
+    //************************************************** PARAM
+    private static String max;
+
+
+    //************************************************** SETTER
+    @Value("${hyl.constraint.subitem.max}")
+    public void setMax(String max) {
+        SubItemService.max = max;
     }
 
 
@@ -179,6 +191,18 @@ public class SubItemService {
          }
          throw new CustomNotFoundException("L'objet SubItem avec pour reference="+reference
                                                 +" et pour id_utilisateur="+idUser+" n'a pas été trouvé.");
+    }
+
+    public static boolean maxSubItemByUserIsValid(long idUser) {
+        int maxSubItemAuthorized = Integer.parseInt(max);
+        int count = 0;
+        List<Item> items = ItemService.getItemsByIdUser(idUser);
+        for (Item item : items) {
+            for (SubItem subItem : item.getSubItems()) {
+                count++;
+            }
+        }
+        return count < maxSubItemAuthorized;
     }
 
     private static void sendReferenceToLoanAPI(String token, long idUser, String oldReference, String reference) {

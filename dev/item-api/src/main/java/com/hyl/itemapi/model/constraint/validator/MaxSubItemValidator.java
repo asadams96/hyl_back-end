@@ -5,6 +5,7 @@ import com.hyl.itemapi.model.Item;
 import com.hyl.itemapi.model.SubItem;
 import com.hyl.itemapi.model.constraint.MaxSubItemConstraint;
 import com.hyl.itemapi.service.ItemService;
+import com.hyl.itemapi.service.SubItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -18,8 +19,6 @@ public class MaxSubItemValidator implements ConstraintValidator<MaxSubItemConstr
     @Autowired
     private HttpServletRequest request;
 
-    @Value("${hyl.constraint.subitem.max}")
-    private String max;
 
     @Override
     public void initialize(MaxSubItemConstraint maxSubItemConstraint) {
@@ -28,14 +27,6 @@ public class MaxSubItemValidator implements ConstraintValidator<MaxSubItemConstr
 
     @Override
     public boolean isValid(SubItem pSubItem, ConstraintValidatorContext context) {
-        int maxSubItemAuthorized = Integer.parseInt(this.max);
-        int count = 0;
-        List<Item> items = ItemService.getItemsByIdUser( ItemController.extractIdUserFromHeader(request) );
-        for (Item item : items) {
-            for (SubItem subItem : item.getSubItems()) {
-                count++;
-            }
-        }
-        return count < maxSubItemAuthorized;
+        return SubItemService.maxSubItemByUserIsValid(ItemController.extractIdUserFromHeader(request));
     }
 }
