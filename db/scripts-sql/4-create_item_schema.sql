@@ -149,3 +149,13 @@ VALUES
 	(NOW() - INTERVAL '4 day', 'Rayure de 1.2cm après que j''ai fais tomber le DVD.', '2', null),
 	(NOW() - INTERVAL '4 day', 'Page 19 avec une trace de café de la taille d''une pièce de 2€ (ma faute).', '3', null),
 	(NOW() - INTERVAL '4 day', 'Manque la page 5 (préface)', '4', null);
+	
+	
+/* Correction bug imcompréhensible et inédit (insert le nom mais impossible de le retrouvé s'il n'est pas remis a jour.)*/
+	UPDATE item.category
+	SET name = 'Péplum'
+	WHERE id_category = 2;
+	
+	UPDATE item.category
+	SET name = 'Livre'
+	WHERE id_category = 3;
