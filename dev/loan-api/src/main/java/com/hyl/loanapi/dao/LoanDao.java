@@ -11,6 +11,6 @@ import java.util.Optional;
 public interface LoanDao extends JpaRepository<Loan, Long> {
     List<Loan> findAllByIdOwnerAndEndDateIsNull(long idOwner);
     List<Loan> findAllByIdOwnerAndEndDateIsNotNull(long idOwner);
-    Optional<Loan> findByReferenceAndEndDateIsNull(String string);
+    Optional<Loan> findByReferenceAndIdOwnerAndEndDateIsNull(String string, Long idUser);
     List<Loan> findAllByReference(String reference);
 }

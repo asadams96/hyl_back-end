@@ -50,6 +50,11 @@ public class LoanController {
         return loanService.getLoans(extractIdUserFromHeader(request), State.TERMINATED, extractJWTFromHeader(request));
     }
 
+    @GetMapping("/check-sub-available")
+    public boolean checkSubitemAvailable(@RequestParam String reference, @Autowired HttpServletRequest request) {
+        return !loanService.checkSubItemAvailable(reference, extractIdUserFromHeader(request), extractJWTFromHeader(request));
+    }
+
 
     // ********************************************************* POST
     @PostMapping("/add-loan")

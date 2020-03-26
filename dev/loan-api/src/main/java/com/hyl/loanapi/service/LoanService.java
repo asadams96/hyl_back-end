@@ -104,7 +104,19 @@ public class LoanService {
         }
     }
 
-    public boolean isAlreadyInProgressByRef(String reference) {
-        return loanDao.findByReferenceAndEndDateIsNull(reference).isPresent();
+    public boolean isAlreadyInProgressByRefAndIdUser(String reference, long idUser) {
+        return loanDao.findByReferenceAndIdOwnerAndEndDateIsNull(reference, idUser).isEmpty();
+    }
+
+    public boolean checkSubItemAvailable(String reference, long idUser, String token) {
+        HashMap<String, String> header = new HashMap<>();
+        header.put(HttpHeaders.AUTHORIZATION, token);
+        header.put("idUser", String.valueOf(idUser));
+
+        if (itemProxy.checkReference(header, reference)) {
+            return isAlreadyInProgressByRefAndIdUser(reference, idUser);
+        } else {
+            return false;
+        }
     }
 }
