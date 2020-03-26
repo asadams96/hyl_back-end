@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -94,8 +95,8 @@ public class ItemController {
     }
 
     @PostMapping("/add-item")
-    public Item addItem(@RequestPart(value = "files", required = false) List<MultipartFile> files,
-                        @RequestPart(value = "data") Object obj,
+    public Item addItem(@RequestParam(value = "files", required = false) List<MultipartFile> files,
+                        @RequestParam(value = "data") Object obj,
                         @Autowired HttpServletRequest request) {
 
         // Validation des images liées au seul et unique subitem obligatoire lors de l'ajout d'un item
@@ -104,7 +105,12 @@ public class ItemController {
         }
 
         // Conversion en JSON de l'objet JSON reçu
-        JSONObject data = (JSONObject) JSONObject.wrap(obj);
+        JSONObject data;
+        try {
+            data = new JSONObject(obj.toString());
+        } catch (JSONException ignored) {
+            throw new CustomBadRequestException("Format JSON incorrect");
+        }
 
         // Appel du service item pour la validation des données puis l'ajout en bdd
         return ItemService.addItem(data.optString("name"),
@@ -116,8 +122,8 @@ public class ItemController {
     }
 
     @PostMapping("/add-subitem")
-    public SubItem addSubItem(@RequestPart(value = "files", required = false) List<MultipartFile> files,
-                              @RequestPart(value = "data") Object obj) {
+    public SubItem addSubItem(@RequestParam(value = "files", required = false) List<MultipartFile> files,
+                              @RequestParam(value = "data") Object obj) {
 
         // Validation des images liées au seul et unique subitem obligatoire lors de l'ajout d'un subitem
         if (files != null && !files.isEmpty() && !files.get(0).isEmpty()) {
@@ -125,7 +131,12 @@ public class ItemController {
         }
 
         // Conversion en JSON de l'objet JSON reçu
-        JSONObject data = (JSONObject) JSONObject.wrap(obj);
+        JSONObject data;
+        try {
+            data = new JSONObject(obj.toString());
+        } catch (JSONException ignored) {
+            throw new CustomBadRequestException("Format JSON incorrect");
+        }
 
         // Appel du service subitem pour la validation des données puis l'ajout en bdd
         return SubItemService.addSubItem(data.optString("reference"),
@@ -197,12 +208,17 @@ public class ItemController {
     }
 
     @PatchMapping("/edit-subitem")
-    public SubItem editSubItem(@RequestPart(value = "files", required = false) List<MultipartFile> files,
-                                @RequestPart(value = "data") Object obj,
+    public SubItem editSubItem(@RequestParam(value = "files", required = false) List<MultipartFile> files,
+                                @RequestParam(value = "data") Object obj,
                                 @Autowired HttpServletRequest request) {
 
         // Conversion en JSON de l'objet JSON reçu
-        JSONObject data = (JSONObject) JSONObject.wrap(obj);
+        JSONObject data;
+        try {
+            data = new JSONObject(obj.toString());
+        } catch (JSONException ignored) {
+            throw new CustomBadRequestException("Format JSON incorrect");
+        }
 
         // Récuprération du subitem en bdd
         SubItem subItem = SubItemService.getSubItemById(data.optLong("idSubItem"));
@@ -217,7 +233,7 @@ public class ItemController {
 
         // Extraction des images à supprimer
         List<Long> filesToDel = new ArrayList<>();
-        JSONArray filesToDelJSONArray = (data.optJSONArray("filesToDel"));
+        JSONArray filesToDelJSONArray = (data.optJSONArray("filesToDelId"));
         if (filesToDelJSONArray != null) {
             for (int i = 0; i < filesToDelJSONArray.length(); i++) {
                 long id = filesToDelJSONArray.optLong(i);
