@@ -96,6 +96,9 @@ public class UserService {
 
     public void updateUser(long idUser, User user) {
         User user0 = this.getUserById(idUser);
+        if (user0.getCellphone() != null && !user0.getCellphone().isBlank()) {
+            user0.setCellphone("0" + user0.getCellphone().substring(3));
+        }
         boolean checkAtomicEmail = false;
         boolean checkAtomicCellphone = false;
 
@@ -130,10 +133,10 @@ public class UserService {
 
     private void checkUserIntegrity(@Validated(User.UpdateValidation.class) User user,
                                     boolean checkAtomicEmail, boolean checkAtomicCellphone) {
-        if (checkAtomicEmail && !this.checkAtomicEmail(user.getEmail())) {
+        if (checkAtomicEmail && this.checkAtomicEmail(user.getEmail())) {
            throw new CustomBadRequestException("L'adresse email est déjà utilisé.");
         }
-        if (checkAtomicCellphone && !this.checkAtomicCellphone(user.getCellphone())) {
+        if (checkAtomicCellphone && this.checkAtomicCellphone(user.getCellphone())) {
             throw new CustomBadRequestException("Le numéro de téléphone est déjà utilisé.");
         }
     }
