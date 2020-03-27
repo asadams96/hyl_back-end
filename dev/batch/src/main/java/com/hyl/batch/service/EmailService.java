@@ -48,7 +48,7 @@ public class EmailService {
         int nbrDay = (int) ((new Date().getTime() -  loan.getStartDate().getTime()) / (1000*60*60*24));
 
         String content =
-                "<p>Bonjour " + (user.getCivility() != null ? user.getCivility()+". " : "")
+                "<p>Bonjour " + defineCivility(user.getCivility()) + " "
                 + user.getSurname() + " " + user.getName() + ",</p>"
                 + "<p>Suite à votre demande,"
                 + "<br />Nous vous informons que le "
@@ -95,5 +95,11 @@ public class EmailService {
         messageBodyPart.setDataHandler(new DataHandler(source));
         messageBodyPart.setFileName(picture.getName());
         multipart.addBodyPart(messageBodyPart);
+    }
+
+    private static String defineCivility(String civility) {
+        if (civility != null && civility.equals("M")) return "M.";
+        else if (civility != null && civility.equals("W")) return "Mme";
+        else return  "";
     }
 }
