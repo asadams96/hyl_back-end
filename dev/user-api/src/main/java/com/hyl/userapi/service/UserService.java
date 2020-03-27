@@ -55,7 +55,8 @@ public class UserService {
     }
 
     public void registerUser(User user) {
-        userDao.save(toDoBeforeSavingUser(user));
+        toDoBeforeSavingUser(user);
+        userDao.save(user);
     }
 
     public void disconnectUser(long idUser) {
@@ -75,6 +76,9 @@ public class UserService {
     }
 
     public Boolean checkAtomicCellphone(String cellphone) {
+        if (cellphone.startsWith("0")) {
+            cellphone = "+33" + cellphone.substring(1);
+        }
         return userDao.findByCellphone(cellphone).isEmpty();
     }
 
@@ -119,8 +123,9 @@ public class UserService {
             checkAtomicEmail = true;
         }
 
+        this.toDoBeforeSavingUser(user0);
         this.checkUserIntegrity(user0, checkAtomicEmail, checkAtomicCellphone);
-        this.userDao.save(this.toDoBeforeSavingUser(user0));
+        this.userDao.save(user0);
     }
 
     private void checkUserIntegrity(@Validated(User.UpdateValidation.class) User user,
@@ -133,7 +138,7 @@ public class UserService {
         }
     }
 
-    private User toDoBeforeSavingUser(User user) {
+    private void toDoBeforeSavingUser(User user) {
 
         if (user.getCellphone() != null && user.getCellphone().isEmpty()) {
             user.setCellphone(null);
@@ -144,7 +149,6 @@ public class UserService {
             user.setCivility(null);
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return user;
     }
 
     private String generatePassword() {

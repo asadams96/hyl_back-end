@@ -19,7 +19,6 @@ public class AtomicCellphoneValidator implements ConstraintValidator<AtomicCellp
     @Override
     public boolean isValid(String field, ConstraintValidatorContext cxt) {
         if (field != null && !field.isEmpty()) {
-            field = "+33" + field.substring(1);
             return userService.checkAtomicCellphone(field);
         } else return true;
     }

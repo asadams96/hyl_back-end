@@ -53,7 +53,7 @@ public class AuthenticationREST {
 
       return userService.doUserInscription(signUpRequest).then(
               userService.doUserConnection(new SignInRequest(signUpRequest.getEmail(), signUpRequest.getPassword()))
-                      .map(user -> ResponseEntity.ok(new AuthResponse(user.getId(), jwtUtil.generateToken(user)))));
+                      .map(user -> ResponseEntity.ok(new AuthResponse(jwtUtil.generateToken(user), user.getId()))));
   }
 
 

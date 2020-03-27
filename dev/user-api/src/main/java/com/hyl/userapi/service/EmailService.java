@@ -26,7 +26,7 @@ public class EmailService {
 
 
     public void sendNewPassword(User user, String newPasswordNotEncrypted) {
-        String content = "<p>Bonjour " + (user.getCivility() != null ? user.getCivility()+". " : "")
+        String content = "<p>Bonjour " + defineCivility(user.getCivility()) + " "
                         + user.getSurname() + " " + user.getName() + ",</p>"
                         + "<p>Suite à votre demande, nous avons réintialisé votre mot de passe."
                         + "<br />À présent pour vous connecter, vous devez utiliser le mot de passe suivant : "
@@ -42,5 +42,11 @@ public class EmailService {
         } catch (MessagingException e) {
             throw new CustomInternalServerErrorException(e.getMessage());
         }
+    }
+
+    private String defineCivility(String civility) {
+        if (civility != null && civility.equals("M")) return "M.";
+        else if (civility != null && civility.equals("W")) return "Mme";
+        else return  "";
     }
 }
