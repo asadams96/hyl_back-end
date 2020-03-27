@@ -131,10 +131,10 @@ public class UserService {
     private void checkUserIntegrity(@Validated(User.UpdateValidation.class) User user,
                                     boolean checkAtomicEmail, boolean checkAtomicCellphone) {
         if (checkAtomicEmail && !this.checkAtomicEmail(user.getEmail())) {
-           throw new CustomBadRequestException("{hyl.user.email.error.atomic}");
+           throw new CustomBadRequestException("L'adresse email est déjà utilisé.");
         }
         if (checkAtomicCellphone && !this.checkAtomicCellphone(user.getCellphone())) {
-            throw new CustomBadRequestException("{hyl.user.cellphone.error.atomic}");
+            throw new CustomBadRequestException("Le numéro de téléphone est déjà utilisé.");
         }
     }
 

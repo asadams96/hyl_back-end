@@ -6,6 +6,8 @@ import com.hyl.userapi.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -69,8 +71,14 @@ public class UserController {
     }
 
     @PostMapping(path = "/forgot-password")
-    public void forgotPassword (@RequestBody String email) {
-        userService.forgotPasswordUser(email);
+    public void forgotPassword (@RequestBody String body) {
+        JSONObject data;
+        try {
+            data = new JSONObject(body);
+        } catch (JSONException e) {
+            throw new CustomBadRequestException("Le format JSON du corps de la requête est incorrect.");
+        }
+        userService.forgotPasswordUser(data.optString("email"));
     }
 
 
