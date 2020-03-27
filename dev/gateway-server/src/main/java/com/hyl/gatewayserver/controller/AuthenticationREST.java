@@ -56,20 +56,7 @@ public class AuthenticationREST {
                       .map(user -> ResponseEntity.ok(new AuthResponse(jwtUtil.generateToken(user), user.getId()))));
   }
 
-
-    @PreAuthorize("!(hasRole('USER') or hasRole('ADMIN'))")
-    @RequestMapping(value = "/forgot-password", method = RequestMethod.POST)
-    public Mono<ResponseEntity<?>> forgotPassword(@RequestBody String email) {
-        return userService.doForgotPassword(email).then(Mono.just(ResponseEntity.ok().build()));
-    }
-
-
-    @RequestMapping(value = "/check-email", method = RequestMethod.GET)
-    public Mono<ResponseEntity<Boolean>> checkEmail(@RequestParam String email) {
-        return userService.doCheckEmail(email).map(ResponseEntity::ok);
-    }
-
-
+  
     @ExceptionHandler({WebClientResponseException.class})
     public ResponseEntity<?> handleException(WebClientResponseException exception) {
         int status = exception.getRawStatusCode();

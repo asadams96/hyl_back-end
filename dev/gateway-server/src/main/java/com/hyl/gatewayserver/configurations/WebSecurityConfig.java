@@ -42,12 +42,12 @@ public class WebSecurityConfig {
                 .securityContextRepository(securityContextRepository)
                 .authorizeExchange()
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
-                .pathMatchers("/item/hyl-img-pages/**").permitAll()
                 .pathMatchers("/signin").permitAll()
                 .pathMatchers("/signup").permitAll()
-                .pathMatchers("/forgot-password").permitAll()
-                .pathMatchers("/check-email").permitAll()
+                .pathMatchers("/user/forgot-password").permitAll()
+                .pathMatchers("/user/check-email").permitAll()
                 .pathMatchers("/user/check-cellphone").permitAll()
+                .pathMatchers("/item/hyl-img-pages/**").permitAll()
                 .anyExchange().authenticated()
                 .and().build();
     }

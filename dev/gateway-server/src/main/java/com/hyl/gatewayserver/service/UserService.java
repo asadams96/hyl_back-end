@@ -61,14 +61,6 @@ public class UserService {
     }
 
 
-    public Mono<Void> doForgotPassword(String email) {
-        return userApiProxy.forgotPassword(admin, email);
-    }
-
-    public Mono<Boolean> doCheckEmail(String email) {
-        return userApiProxy.checkEmail(admin, email);
-    }
-
     public Mono<String> doGetIdByEmail(String email) {
         return userApiProxy.getIdByEmail(admin, email);
     }
