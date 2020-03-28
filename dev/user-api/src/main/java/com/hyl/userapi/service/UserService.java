@@ -55,7 +55,7 @@ public class UserService {
     }
 
     public void registerUser(User user) {
-        toDoBeforeSavingUser(user);
+        toDoBeforeSavingUser(user, true);
         userDao.save(user);
     }
 
@@ -99,8 +99,8 @@ public class UserService {
         if (user0.getCellphone() != null && !user0.getCellphone().isBlank()) {
             user0.setCellphone("0" + user0.getCellphone().substring(3));
         }
-        boolean checkAtomicEmail = false;
         boolean checkAtomicCellphone = false;
+        boolean encodePass = false;
 
         if (user.getName() != null && !user.getName().equals(user0.getName())) {
             user0.setName(user.getName());
@@ -112,6 +112,7 @@ public class UserService {
             user0.setPseudo(user.getPseudo());
         }
         if (user.getPassword() != null && !user.getPassword().isBlank()) {
+            encodePass = true;
             user0.setPassword(user.getPassword());
         }
         if (user.getCivility() != null && !user.getCivility().equals(user0.getCivility())) {
@@ -121,27 +122,19 @@ public class UserService {
             user0.setCellphone(user.getCellphone());
             checkAtomicCellphone = true;
         }
-        if (user.getEmail() != null && !user.getEmail().equals(user0.getEmail())) {
-            user0.setEmail(user.getEmail());
-            checkAtomicEmail = true;
-        }
 
-        this.toDoBeforeSavingUser(user0);
-        this.checkUserIntegrity(user0, checkAtomicEmail, checkAtomicCellphone);
+        this.toDoBeforeSavingUser(user0, encodePass);
+        this.checkUserIntegrity(user0, checkAtomicCellphone);
         this.userDao.save(user0);
     }
 
-    private void checkUserIntegrity(@Validated(User.UpdateValidation.class) User user,
-                                    boolean checkAtomicEmail, boolean checkAtomicCellphone) {
-        if (checkAtomicEmail && this.checkAtomicEmail(user.getEmail())) {
-           throw new CustomBadRequestException("L'adresse email est déjà utilisé.");
-        }
+    private void checkUserIntegrity(@Validated(User.UpdateValidation.class) User user, boolean checkAtomicCellphone) {
         if (checkAtomicCellphone && this.checkAtomicCellphone(user.getCellphone())) {
             throw new CustomBadRequestException("Le numéro de téléphone est déjà utilisé.");
         }
     }
 
-    private void toDoBeforeSavingUser(User user) {
+    private void toDoBeforeSavingUser(User user, boolean encodePass) {
 
         if (user.getCellphone() != null && user.getCellphone().isEmpty()) {
             user.setCellphone(null);
@@ -151,7 +144,7 @@ public class UserService {
         if (user.getCivility() != null && user.getCivility().isEmpty()) {
             user.setCivility(null);
         }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (encodePass) user.setPassword(passwordEncoder.encode(user.getPassword()));
     }
 
     private String generatePassword() {
