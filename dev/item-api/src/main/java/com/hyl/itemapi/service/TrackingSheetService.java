@@ -49,39 +49,32 @@ public class TrackingSheetService {
         trackingSheetDao.save(trackingSheet);
     }
 
-    public static SubItem deleteTrackingSheetsById(List<String> ids, long idUser) {
-        List<TrackingSheet> trackingSheets = new ArrayList<>();
-        long idSubitem = 0;
-        boolean firstIteration = true;
-        for (String idStr : ids) {
+    public static SubItem deleteTrackingSheetsByIds(List<String> ids, long idUser) {
+        List<Long> idList = new ArrayList<>();
+        ids.forEach(id -> idList.add(Long.parseLong(id)));
+        List<TrackingSheet> trackingSheets = trackingSheetDao.findAllById(idList);
+        checkTrackingSheetIntegrityBeforeDeletion(trackingSheets, idUser);
+        trackingSheetDao.deleteAll(trackingSheets);
+        return SubItemService.getSubItemById( (!trackingSheets.isEmpty() ? trackingSheets.get(0).getSubItem().getId() : 0) );
+    }
 
-            long id = Long.parseLong(idStr);
-            TrackingSheet trackingSheet = TrackingSheetService.getTrackingSheetById(id);
-
-            if (trackingSheet.getSubItem().getItem().getIdUser() != idUser) {
-                throw new CustomBadRequestException("L'id renseigné dans le header ne correspond pas à l'id du propriétaire de l'objet.");
-            }
-
-            if (firstIteration) {
-                idSubitem = trackingSheet.getSubItem().getId();
-                firstIteration = false;
-            } else if (idSubitem != trackingSheet.getSubItem().getId()) {
-                throw new CustomBadRequestException("Les fiches de suivi n'appartiennent pas au même objet subitem");
-            }
-
-            trackingSheets.add(trackingSheet);
-        }
-        trackingSheets.forEach(TrackingSheetService::deleteTrackingSheet);
-        return SubItemService.getSubItemById(idSubitem);
+    public static void deleteTrackingSheetsByIdsLoan(List<String> idsLoan, long idUser) {
+        List<Long> ids = new ArrayList<>();
+        idsLoan.forEach(id -> ids.add(Long.parseLong(id)));
+        List<TrackingSheet> trackingSheets = trackingSheetDao.findAllByIdLoanIn(ids);
+        checkTrackingSheetIntegrityBeforeDeletion(trackingSheets, idUser);
+        trackingSheetDao.deleteAll(trackingSheets);
     }
 
     public static void deleteTrackingSheet(TrackingSheet trackingSheet) {
         trackingSheetDao.delete(trackingSheet);
     }
 
-    public static TrackingSheet getTrackingSheetById(long id) {
-        Optional<TrackingSheet> optSheet = trackingSheetDao.findById(id);
-        if ( optSheet.isPresent() ) return optSheet.get();
-        else throw new CustomNotFoundException("L'objet TrackingSheet avec pour id="+id+" n'a pas été trouvé.");
+    private static void checkTrackingSheetIntegrityBeforeDeletion(List<TrackingSheet> trackingSheets, long idUser) {
+        for (TrackingSheet trackingSheet : trackingSheets) {
+            if (trackingSheet.getSubItem().getItem().getIdUser() != idUser) {
+                throw new CustomBadRequestException("L'id renseigné dans le header ne correspond pas à l'id du propriétaire de l'objet.");
+            }
+        }
     }
 }

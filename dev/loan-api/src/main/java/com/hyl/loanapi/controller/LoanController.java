@@ -87,8 +87,11 @@ public class LoanController {
 
     // ********************************************************* DELETE
     @DeleteMapping("/delete-loans")
-    public void deleteLoan(@Validated(Loan.DeleteValidation.class) @RequestBody ValidCloseLoansListValidation loans) {
-       loans.forEach(loanService::deleteLoan);
+    public void deleteLoan(@Validated(Loan.DeleteValidation.class)
+                               @RequestParam(name = "ids") ValidCloseLoansListValidation loans,
+                           @Autowired HttpServletRequest request) {
+
+        loanService.deleteLoan(extractIdUserFromHeader(request), extractJWTFromHeader(request), loans.getList());
     }
 
 

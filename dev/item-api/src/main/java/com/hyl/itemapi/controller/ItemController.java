@@ -284,7 +284,12 @@ public class ItemController {
 
     @DeleteMapping("/delete-tracking-sheets")
     public SubItem deleteTrackingSheets(@RequestParam List<String> ids, @Autowired HttpServletRequest request) {
-        return TrackingSheetService.deleteTrackingSheetsById(ids, extractIdUserFromHeader(request));
+        return TrackingSheetService.deleteTrackingSheetsByIds(ids, extractIdUserFromHeader(request));
+    }
+
+    @DeleteMapping("/delete-tracking-sheets-by-ids-loan")
+    public void deleteTrackingSheetsByIdsLoan(@RequestParam List<String> ids, @Autowired HttpServletRequest request) {
+        TrackingSheetService.deleteTrackingSheetsByIdsLoan(ids, extractIdUserFromHeader(request));
     }
 
 

@@ -92,8 +92,18 @@ public class LoanService {
         }
     }
 
-    public void deleteLoan(Loan loan) {
-        loanDao.delete(loan);
+    public void deleteLoan(long idUser, String token, List<Loan> loans) {
+        List<String> ids = new ArrayList<>();
+        loans.forEach(loan -> {
+            ids.add(String.valueOf(loan.getId()));
+        });
+        if (!ids.isEmpty()) {
+            HashMap<String, String> header = new HashMap<>();
+            header.put(HttpHeaders.AUTHORIZATION, token);
+            header.put("idUser", String.valueOf(idUser));
+            itemProxy.deleteTrackingSheets(header, ids);
+        }
+        loanDao.deleteAll(loans);
     }
 
     public void updateReferenceInLoans(String oldReference, String newReference) {
