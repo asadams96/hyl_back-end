@@ -58,6 +58,13 @@ public class TrackingSheetService {
         return SubItemService.getSubItemById( (!trackingSheets.isEmpty() ? trackingSheets.get(0).getSubItem().getId() : 0) );
     }
 
+    public static SubItem deleteTrackingSheetsByIdSubItem(long idSubItem, long idUser) {
+        SubItem subItem = SubItemService.getSubItemById(idSubItem);
+        checkTrackingSheetIntegrityBeforeDeletion(subItem.getTrackingSheets(), idUser);
+        subItem.getTrackingSheets().clear();
+        return SubItemService.save(subItem);
+    }
+
     public static void deleteTrackingSheetsByIdsLoan(List<String> idsLoan, long idUser) {
         List<Long> ids = new ArrayList<>();
         idsLoan.forEach(id -> ids.add(Long.parseLong(id)));

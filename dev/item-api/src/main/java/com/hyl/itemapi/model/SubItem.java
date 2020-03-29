@@ -38,7 +38,7 @@ public class SubItem {
     private String reference;
 
     @Size(max = 0, message = "{hyl.subitem.trackingsheets.error.size}", groups = {AddValidation.class})
-    @OneToMany(targetEntity = TrackingSheet.class, mappedBy = "subItem", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(targetEntity = TrackingSheet.class, mappedBy = "subItem", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval=true)
     private List<TrackingSheet> trackingSheets;
 
     @OneToMany(targetEntity = Picture.class, mappedBy = "subItem", fetch = FetchType.LAZY, cascade = CascadeType.ALL)

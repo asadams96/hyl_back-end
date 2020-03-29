@@ -142,6 +142,10 @@ public class SubItemService {
         return subItem;
     }
 
+    protected static SubItem save(SubItem subItem) {
+        return subItemDao.save(subItem);
+    }
+
     protected static SubItem buildSubItem(Item item, String reference, List<MultipartFile> files) {
 
         // Construction du subitem
