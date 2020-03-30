@@ -2,7 +2,9 @@ package com.hyl.itemapi.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hyl.itemapi.model.constraint.AtomicCategoryNameConstraint;
+import com.hyl.itemapi.model.constraint.CharacterRepetitionConstraint;
 import com.hyl.itemapi.model.constraint.IdOwnerConstraint;
+import com.hyl.itemapi.model.constraint.NoWhiteSpaceConstraint;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -33,6 +35,8 @@ public class Category {
 
     @NotBlank(message = "{hyl.category.name.error.notblank}", groups = {AddChildValidation.class, AddParentValidation.class, UpdateValidation.class})
     @Length(min = 3, max = 15, message = "{hyl.category.name.error.length}", groups = {AddChildValidation.class, AddParentValidation.class, UpdateValidation.class})
+    @CharacterRepetitionConstraint(message = "{hyl.category.name.error.characterrepetition}", groups = {AddChildValidation.class, AddParentValidation.class, UpdateValidation.class})
+    @NoWhiteSpaceConstraint(message = "{hyl.category.name.error.nowhitespace}", groups = {AddChildValidation.class, AddParentValidation.class, UpdateValidation.class})
     @AtomicCategoryNameConstraint(groups = {AddChildValidation.class, AddParentValidation.class, UpdateValidation.class})
     @Column(name = "name")
     private String name;
