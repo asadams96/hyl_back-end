@@ -19,6 +19,3 @@ CREATE TABLE usager.usager (
 
 
 ALTER SEQUENCE usager.usager_id_usager_seq OWNED BY usager.usager.id_usager;
-
-INSERT INTO usager.usager (pseudo, email, password, surname, name, civility, cellphone) /*password not encrypted = 'password' */
-VALUES ('asadams', 'asadams89@gmail.com', 'hEwlcpqmhfzKNihzo8+hi1OQ/Ws3DZkdQfieG/rrDBRJ0zoFR2u4C/DMyIBLC2CrVycvtJGFjaVr9RHI0dj3Xg==', 'De Abreu', 'Ayrton', 'M', '+33602160808');
