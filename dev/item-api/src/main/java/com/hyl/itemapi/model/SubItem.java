@@ -31,7 +31,6 @@ public class SubItem {
 
     @NotBlank(message = "{hyl.subitem.reference.error.notblank}", groups = {AddValidation.class, UpdateValidation.class})
     @Length(min = 6, max = 15, message = "{hyl.subitem.reference.error.length}", groups = {AddValidation.class, UpdateValidation.class})
-    // todo faire message erreur
     @CharacterRepetitionConstraint(message = "{hyl.subitem.reference.error.characterrepetition}", groups = {AddValidation.class, UpdateValidation.class})
     @NoWhiteSpaceConstraint(message = "{hyl.subitem.reference.error.nowhitespace}", groups = {AddValidation.class, UpdateValidation.class})
     @AtomicSubItemRefConstraint(groups = {AddValidation.class, UpdateValidation.class})

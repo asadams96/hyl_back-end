@@ -2,7 +2,9 @@ package com.hyl.itemapi.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hyl.itemapi.model.constraint.AtomicItemNameConstraint;
+import com.hyl.itemapi.model.constraint.CharacterRepetitionConstraint;
 import com.hyl.itemapi.model.constraint.IdOwnerConstraint;
+import com.hyl.itemapi.model.constraint.NoWhiteSpaceConstraint;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
@@ -33,6 +35,8 @@ public class Item {
 
     @NotBlank(message = "{hyl.item.name.error.notblank}", groups = {AddValidation.class, UpdateValidation.class})
     @Length(min = 3, max = 15, message = "{hyl.item.name.error.length}", groups = {AddValidation.class, UpdateValidation.class})
+    @CharacterRepetitionConstraint(message = "{hyl.item.name.error.characterrepetition}", groups = {AddValidation.class, UpdateValidation.class})
+    @NoWhiteSpaceConstraint(message = "{hyl.item.name.error.nowhitespace}", groups = {AddValidation.class, UpdateValidation.class})
     @AtomicItemNameConstraint(groups = {AddValidation.class, UpdateValidation.class})
     @Column(name = "name")
     private String name;
