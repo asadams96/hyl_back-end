@@ -72,7 +72,7 @@ public class LoanController {
 
     // ********************************************************* PATCH
     @PatchMapping(value = "/update-reference")
-    public void updateReference(@RequestBody HashMap<String, String> hashMap) {
+    public void updateReference(@Autowired HttpServletRequest request, @RequestBody HashMap<String, String> hashMap) {
         String oldReference = hashMap.get("oldReference");
         String newReference = hashMap.get("newReference");
 
@@ -81,7 +81,7 @@ public class LoanController {
         if (newReference == null || newReference.isBlank())
             throw new CustomBadRequestException("Le paramètre newReference n'est pas présent.");
 
-        loanService.updateReferenceInLoans(oldReference, newReference);
+        loanService.updateReferenceInLoans(oldReference, newReference, extractIdUserFromHeader(request));
     }
 
 
@@ -92,6 +92,15 @@ public class LoanController {
                            @Autowired HttpServletRequest request) {
 
         loanService.deleteLoan(extractIdUserFromHeader(request), extractJWTFromHeader(request), loans.getList());
+    }
+
+    // todo delete Loan by id subitem
+    @DeleteMapping("/delete-loans-by-reference")
+    public void deleteLoanByReference(@Autowired HttpServletRequest request, @RequestParam String reference) {
+        if (reference == null || reference.isBlank()) {
+            throw new CustomBadRequestException("La référence ne doit pas être null ou vide");
+        }
+        loanService.deleteLoansByReference(reference, extractIdUserFromHeader(request));
     }
 
 

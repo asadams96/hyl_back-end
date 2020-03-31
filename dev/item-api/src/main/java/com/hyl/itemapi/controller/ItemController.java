@@ -268,18 +268,19 @@ public class ItemController {
     }
 
     @DeleteMapping("/delete-item")
-    public void deleteItem(@RequestParam long id) {
-        ItemService.deleteItem(id);
+    public void deleteItem(@Autowired HttpServletRequest request, @RequestParam long id) {
+        ItemService.deleteItem(id, extractJWTFromHeader(request), extractIdUserFromHeader(request));
     }
 
     @DeleteMapping("/delete-subitem")
     public void deleteSubItem(@RequestParam long id, @Autowired HttpServletRequest request) {
         SubItem subItem = SubItemService.getSubItemById(id);
         // Check manuellement si c'est bien le proprietaire du subitem qui est à l'origine de la requête (bug validateur)
-        if (subItem.getItem().getIdUser() != extractIdUserFromHeader(request)) {
+        long idUser = extractIdUserFromHeader(request);
+        if (subItem.getItem().getIdUser() != idUser) {
             throw new CustomBadRequestException("L'id renseigné dans le header ne correspond pas à l'id du propriétaire de l'objet.");
         }
-        SubItemService.deleteSubItem(subItem);
+        SubItemService.deleteSubItem(subItem, extractJWTFromHeader(request), idUser);
     }
 
     @DeleteMapping("/delete-tracking-sheets")

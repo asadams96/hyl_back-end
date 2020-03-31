@@ -71,13 +71,20 @@ public class SubItemService {
         return subItem;
     }
 
-    public static void deleteSubItem(SubItem subItem) {
+    public static void deleteSubItem(SubItem subItem, String token, long idUser) {
 
         // Si c'est le dernier subitem de l'item -> true -> l'item sera aussi supprimé
         boolean deleteItem = subItem.getItem().getSubItems().size() == 1;
 
         // Suppresion du subitem de la liste des subitems de l'item (pour que la suppresion en bdd fonctionne -> cascade)
         subItem.getItem().getSubItems().remove(subItem);
+
+        // todo demande a loanProxy de supprimer les prets passé et présent ayant pour reference -> subItem.ref
+        // Envoi d'une requête pour supprimer les prêts associés à la référence du subitem
+        HashMap<String, String> header = new HashMap<>();
+        header.put(HttpHeaders.AUTHORIZATION, token);
+        header.put("idUser", String.valueOf(idUser));
+        loanProxy.deleteLoanByReference(header, subItem.getReference());
 
         // Suppression des fiches de suivi du subitem
         List<TrackingSheet> trackingSheets = new ArrayList<>(subItem.getTrackingSheets());
@@ -93,7 +100,7 @@ public class SubItemService {
         FileService.deleteFile(subItem);
 
         // Si c'est le dernier subitem de l'item -> true -> l'item sera aussi supprimé
-        if (deleteItem) ItemService.deleteItem(subItem.getItem().getId());
+        if (deleteItem) ItemService.deleteItem(subItem.getItem().getId(), token, idUser);
     }
 
     public static SubItem editSubItem(String reference, SubItem subItem,

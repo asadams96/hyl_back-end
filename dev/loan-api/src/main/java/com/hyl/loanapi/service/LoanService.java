@@ -106,8 +106,13 @@ public class LoanService {
         loanDao.deleteAll(loans);
     }
 
-    public void updateReferenceInLoans(String oldReference, String newReference) {
-        List<Loan> loans = loanDao.findAllByReference(oldReference);
+    public void deleteLoansByReference(String reference, long idUser) {
+        List<Loan> loans = loanDao.findAllByReferenceAndIdOwner(reference, idUser);
+        if (!loans.isEmpty()) loanDao.deleteAll(loans);
+    }
+
+    public void updateReferenceInLoans(String oldReference, String newReference, long idUser) {
+        List<Loan> loans = loanDao.findAllByReferenceAndIdOwner(oldReference, idUser);
         if (!loans.isEmpty()) {
             loans.forEach(loan -> loan.setReference(newReference));
             loanDao.saveAll(loans);

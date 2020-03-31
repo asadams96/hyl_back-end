@@ -65,13 +65,13 @@ public class ItemService {
         itemDao.save(item);
     }
 
-    public static void deleteItem(long id) {
+    public static void deleteItem(long id, String token, long idUser) {
         Item item = getItemById(id);
         CustomValidator.validate(item, Item.OwnerValidation.class);
         List<SubItem> subItems = new ArrayList<>(item.getSubItems());
         subItems.forEach(subItem -> {
             item.getSubItems().remove(subItem);
-            SubItemService.deleteSubItem(subItem);
+            SubItemService.deleteSubItem(subItem, token, idUser);
         });
         itemDao.delete(item);
         FileService.deleteFile(item);
