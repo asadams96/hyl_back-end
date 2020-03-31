@@ -79,7 +79,6 @@ public class SubItemService {
         // Suppresion du subitem de la liste des subitems de l'item (pour que la suppresion en bdd fonctionne -> cascade)
         subItem.getItem().getSubItems().remove(subItem);
 
-        // todo demande a loanProxy de supprimer les prets passé et présent ayant pour reference -> subItem.ref
         // Envoi d'une requête pour supprimer les prêts associés à la référence du subitem
         HashMap<String, String> header = new HashMap<>();
         header.put(HttpHeaders.AUTHORIZATION, token);

@@ -14,7 +14,6 @@ public interface LoanProxy {
     void updateReference(@RequestHeader HashMap<String, String> headerMap,
                      @RequestBody HashMap<String, String> hashMap);
 
-    // todo deleteMapping -> delete loans by ref subitem /delete-loans-by-reference
     @DeleteMapping(value = "/delete-loans-by-reference")
     void deleteLoanByReference(@RequestHeader HashMap<String, String> headerMap,
                          @RequestParam String reference);

@@ -94,7 +94,6 @@ public class LoanController {
         loanService.deleteLoan(extractIdUserFromHeader(request), extractJWTFromHeader(request), loans.getList());
     }
 
-    // todo delete Loan by id subitem
     @DeleteMapping("/delete-loans-by-reference")
     public void deleteLoanByReference(@Autowired HttpServletRequest request, @RequestParam String reference) {
         if (reference == null || reference.isBlank()) {
