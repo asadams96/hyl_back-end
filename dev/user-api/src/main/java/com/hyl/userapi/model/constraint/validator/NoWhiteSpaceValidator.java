@@ -1,6 +1,5 @@
 package com.hyl.userapi.model.constraint.validator;
 
-import com.hyl.userapi.model.constraint.CellphoneConstraint;
 import com.hyl.userapi.model.constraint.NoWhiteSpaceConstraint;
 
 import javax.validation.ConstraintValidator;
@@ -16,7 +15,7 @@ public class NoWhiteSpaceValidator implements ConstraintValidator<NoWhiteSpaceCo
     public boolean isValid(String field, ConstraintValidatorContext cxt) {
 
         // Espacement sur les cotés interdits
-        if (field.length() != field.trim().length()) {
+        if (field == null || field.length() != field.trim().length()) {
             return false;
         }
 

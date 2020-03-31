@@ -18,6 +18,7 @@ public class AtomicEmailValidator implements ConstraintValidator<AtomicEmailCons
 
     @Override
     public boolean isValid(String field, ConstraintValidatorContext cxt) {
+        if (field == null) return false;
         return userService.checkAtomicEmail(field);
     }
 }

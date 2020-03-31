@@ -1,9 +1,6 @@
 package com.hyl.userapi.model.constraint.validator;
 
-import com.hyl.userapi.model.constraint.CellphoneConstraint;
 import com.hyl.userapi.model.constraint.CharacterRepetitionConstraint;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -20,6 +17,7 @@ public class CharacterRepetitionValidator implements ConstraintValidator<Charact
     @Override
     public boolean isValid(String field, ConstraintValidatorContext cxt) {
 
+        if (field == null) return false;
         field = field.toLowerCase();
         String extraction;
         boolean repetition;

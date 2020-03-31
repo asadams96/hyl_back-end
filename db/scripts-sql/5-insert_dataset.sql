@@ -11,7 +11,6 @@ VALUES
 	('1', NOW() - INTERVAL '10 day', NOW() - INTERVAL '5 day', 'Gladiator#2', 'Pierre', 'Prêté sur le Champs de Mars', NOW()),
 	('1', NOW() - INTERVAL '10 day', NOW() - INTERVAL '5 day', 'LaPrisonnière#1', 'Napoleon', 'Prété à deux pas de l''Arc de Triomphe', NOW()),
 	('1', NOW() - INTERVAL '10 day', NOW() - INTERVAL '5 day', 'Lamiel#1', 'Jacques', 'Prêté à la cafétéria du bureau', NOW() + INTERVAL '1 day'),
-	('1', NOW() - INTERVAL '3 day', null, 'Gladiator#1', 'Arthur', 'Prêté dans le bois de Vincennes', NOW() - INTERVAL '1 day'),
 	('1', NOW() - INTERVAL '3 day', null, 'Gladiator#2', 'Phillipe', 'Prêté devant le Louvre', NOW()),
 	('1', NOW() - INTERVAL '3 day', null, 'LaPrisonnière#1', 'Jeanne', 'Prété dans le Jardin du Luxembourg', NOW()),
 	('1', NOW() - INTERVAL '3 day', null, 'Lamiel#1', 'Marie', 'Prêté au pied du musée Rodin', NOW() + INTERVAL '1 day');
@@ -22,8 +21,8 @@ INSERT INTO
 	item.category (id_category_parent, id_usager, name)
 VALUES 
 	(null, 1, 'DVD'),
-	(1, 1, '‎Péplum'),
-	(null, 1, '‎Livre'),
+	(1, 1, 'Péplum'),
+	(null, 1, 'Livre'),
 	(3, 1, 'Proust');
 	
 
@@ -68,13 +67,3 @@ VALUES
 	(NOW() - INTERVAL '4 day', 'Rayure de 1.2cm après que j''ai fais tomber le DVD.', '2', null),
 	(NOW() - INTERVAL '4 day', 'Page 19 avec une trace de café de la taille d''une pièce de 2€ (ma faute).', '3', null),
 	(NOW() - INTERVAL '4 day', 'Manque la page 5 (préface)', '4', null);
-	
-	
-/* Correction bug imcompréhensible (insert le nom mais impossible de le retrouver s'il n'est pas remis a jour.)*/
-	UPDATE item.category
-	SET name = 'Péplum'
-	WHERE id_category = 2;
-	
-	UPDATE item.category
-	SET name = 'Livre'
-	WHERE id_category = 3;
