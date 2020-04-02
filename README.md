@@ -40,7 +40,7 @@ Vérifiez également que votre outil _Docker_ soit configuré sur l'adresse IP :
 
 #### Lancement
 
-   Exécutez le script shell db/deploy-db.sh
+	Exécutez le script shell db/deploy-db.sh
 
 
 #### Remise à zéro
