@@ -19,6 +19,7 @@ https://github.com/asadams96/hyl_config-repo
 * _db_ : Ressources concernant la base de données
 * _dev_ : Code souce de l'application (partie back-end)
 * _integration_ : Test d'intégration (Postman)
+* _attach_ : Annexes du projet (configurations, dataset-image, diagrams, note d'intention, bilan)
 
 ## Information
 
