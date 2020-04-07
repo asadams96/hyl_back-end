@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.hyl</groupId>
 	<artifactId>admin-server</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0</version>
 	<name>admin-server</name>
 	<description>Serveur d'administration des instances déployées</description>
 
