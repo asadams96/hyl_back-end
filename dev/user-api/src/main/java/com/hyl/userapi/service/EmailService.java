@@ -2,6 +2,8 @@ package com.hyl.userapi.service;
 
 import com.hyl.userapi.exception.CustomInternalServerErrorException;
 import com.hyl.userapi.model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,14 +19,22 @@ import javax.mail.internet.MimeMessage;
 @Service
 public class EmailService {
 
+    // ********************************************************* Logger
+    private final Logger logger = LoggerFactory.getLogger(EmailService.class);
+
+
+    // ********************************************************* Bean
     private final Session session;
 
+
+    // ********************************************************* Constructor
     @Autowired
     public EmailService(Session session) {
         this.session = session;
     }
 
 
+    // ********************************************************* Méthodes
     public void sendNewPassword(User user, String newPasswordNotEncrypted) {
         String content = "<p>Bonjour " + defineCivility(user.getCivility()) + " "
                         + user.getSurname() + " " + user.getName() + ",</p>"

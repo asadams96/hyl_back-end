@@ -1,5 +1,8 @@
 package com.hyl.userapi.configuration;
 
+import com.hyl.userapi.service.EmailService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +15,12 @@ import java.util.Properties;
 @Configuration
 public class EmailServerConfig {
 
+
+    // ********************************************************* Logger
+    private final Logger logger = LoggerFactory.getLogger(EmailService.class);
+
+
+    // ********************************************************* Variables
     @Value("${hyl.configuration.email}")
     private String username;
 
@@ -19,6 +28,7 @@ public class EmailServerConfig {
     private String password;
 
 
+    // ********************************************************* Bean
     @Bean
     public Session sessionConfig() {
         Properties props = new Properties();
