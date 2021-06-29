@@ -12,9 +12,14 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.activation.FileDataSource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.List;
 
 @Service
 @Transactional
@@ -98,6 +103,48 @@ public class MailService {
             throw new CustomInternalServerErrorException(e.getMessage());
         }
     }
+
+
+    public void sendLoanCallBack(String email, String civility, String surname, String name,
+                                 Date startDate, String itemName, String subItemRef, String beneficiary,
+                                 List<Hashtable<String, String>> urlImages) {
+
+        MimeMessage message = emailSender.createMimeMessage();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy à HH:mm:ss");
+        int nbrDay = (int) ((new Date().getTime() -  startDate.getTime()) / (1000*60*60*24));
+
+        String content =
+                "<p>Bonjour " + defineCivility(civility) + " "
+                        + surname + " " + name + ",</p>"
+                        + "<p>Suite à votre demande,"
+                        + "<br />Nous vous informons que le "
+                        + "<strong>" + sdf.format(startDate) + "</strong> vous avez enregistré un prêt "
+                        + "avec demande de rappel concernant l'objet <strong>" + itemName
+                        + "</strong> ayant pour référence <strong>" + subItemRef + "</strong> à "
+                        + "l'intention de <strong>" + beneficiary + "</strong>."
+                        + "<br />Vous avez donc prêté votre objet depuis <strong>" + nbrDay + "</strong> jours.</p>"
+                        + "<p>Merci de nous faire confiance et d'utiliser <strong>HYL</strong>.</p>";
+
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "utf-8");
+            helper.setText(content, true);
+
+            if(urlImages != null && !urlImages.isEmpty()) {
+                for(Hashtable<String, String> table : urlImages) {
+                    File file = new File(localUrl + table.get("url"));
+                    if(file.exists()) {
+                        helper.addAttachment(table.get("name"), new FileDataSource(file));
+                    }
+                }
+            }
+            helper.setTo(email);
+            helper.setSubject("[HYL] Rappel - Prêt en cours");
+            this.emailSender.send(message);
+        } catch (MessagingException e) {
+            throw new CustomInternalServerErrorException(e.getMessage());
+        }
+    }
+
     private String defineCivility(String civility) {
         if (civility != null && civility.equals("M")) return "M.";
         else if (civility != null && civility.equals("W")) return "Mme";
