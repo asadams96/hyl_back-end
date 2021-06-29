@@ -9,14 +9,14 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
 
 @Service
+@Transactional
 public class MailService {
 
     //************************************************** LOGGER
@@ -51,8 +51,6 @@ public class MailService {
 
 
     //************************************************** METHODES
-    @ResponseBody
-    @RequestMapping("/testmail")
     public String sendMail() throws MessagingException {
 
         MimeMessage message = emailSender.createMimeMessage();
