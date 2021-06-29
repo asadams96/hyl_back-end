@@ -1,5 +1,6 @@
 package com.hyl.mailserver.service;
 
+import com.hyl.mailserver.exception.CustomInternalServerErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,5 +75,32 @@ public class MailService {
         this.emailSender.send(message);
 
         return "Email envoyé!";
+    }
+
+
+    public void sendNewPassword(String email, String civility, String surname,
+                                String name, String newPasswordNotEncrypted) {
+        MimeMessage message = emailSender.createMimeMessage();
+        String content = "<p>Bonjour " + defineCivility(civility) + " "
+                + surname + " " + name + ",</p>"
+                + "<p>Suite à votre demande, nous avons réintialisé votre mot de passe."
+                + "<br />À présent pour vous connecter, vous devez utiliser le mot de passe suivant : "
+                + "<strong>" + newPasswordNotEncrypted + "</strong></p>"
+                + "<p>Merci de nous faire confiance et d'utiliser <strong>HYL</strong>.</p>";
+
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "utf-8");
+            helper.setText(content, true);
+            helper.setTo(email);
+            helper.setSubject("[HYL] Réintialisation du mot de passe");
+            this.emailSender.send(message);
+        } catch (MessagingException e) {
+            throw new CustomInternalServerErrorException(e.getMessage());
+        }
+    }
+    private String defineCivility(String civility) {
+        if (civility != null && civility.equals("M")) return "M.";
+        else if (civility != null && civility.equals("W")) return "Mme";
+        else return  "";
     }
 }
