@@ -6,6 +6,8 @@ import com.hyl.userapi.exception.CustomBadRequestException;
 import com.hyl.userapi.exception.CustomNotFoundException;
 import com.hyl.userapi.exception.CustomUnauthorizedException;
 import com.hyl.userapi.model.User;
+import com.hyl.userapi.proxy.MailProxy;
+import io.micrometer.shaded.org.pcollections.HashPMap;
 import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +17,7 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.servlet.http.HttpSession;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,14 +34,14 @@ public class UserService {
     private final UserDao userDao;
     private final PBKDF2Encoder passwordEncoder;
     private final HttpSession httpSession;
-    private final EmailService emailService;
+    private final MailProxy mailProxy;
 
     // ********************************************************* Constructor
-    public UserService(UserDao userDao, PBKDF2Encoder passwordEncoder, HttpSession httpSession, EmailService emailService) {
+    public UserService(UserDao userDao, PBKDF2Encoder passwordEncoder, HttpSession httpSession, EmailService emailService, MailProxy mailProxy) {
         this.userDao = userDao;
         this.passwordEncoder = passwordEncoder;
         this.httpSession = httpSession;
-        this.emailService = emailService;
+        this.mailProxy = mailProxy;
     }
 
 
@@ -68,7 +71,7 @@ public class UserService {
         String password = generatePassword();
         user.setPassword(passwordEncoder.encode(password));
         userDao.save(user);
-        emailService.sendNewPassword(user, password);
+        this.sendNewPasswordWithMailProxy(user, password);
     }
 
     public Boolean checkAtomicEmail(String email) {
@@ -157,5 +160,30 @@ public class UserService {
         List<Character> pwdChars = combinedChars.chars().mapToObj(c -> (char) c).collect(Collectors.toList());
         Collections.shuffle(pwdChars);
         return  pwdChars.stream().collect(StringBuilder::new, StringBuilder::append, StringBuilder::append).toString();
+    }
+
+    private void sendNewPasswordWithMailProxy(User user, String password) {
+        String subject = "[HYL] Réintialisation du mot de passe";
+        String content = "<p>Bonjour " + defineCivility(user.getCivility()) + " "
+                + user.getSurname() + " " + user.getName() + ",</p>"
+                + "<p>Suite à votre demande, nous avons réintialisé votre mot de passe."
+                + "<br />À présent pour vous connecter, vous devez utiliser le mot de passe suivant : "
+                + "<strong>" + password + "</strong></p>"
+                + "<p>Merci de nous faire confiance et d'utiliser <strong>HYL</strong>.</p>";
+
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put("destinary", user.getEmail());
+        hashMap.put("subject", subject);
+        hashMap.put("content", content);
+        hashMap.put("encoding", "utf-8");
+        hashMap.put("html", "true");
+
+        mailProxy.sendMail(hashMap);
+    }
+
+    private String defineCivility(String civility) {
+        if (civility != null && civility.equals("M")) return "M.";
+        else if (civility != null && civility.equals("W")) return "Mme";
+        else return  "";
     }
 }
