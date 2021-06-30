@@ -48,6 +48,7 @@ public class WebSecurityConfig {
                 .pathMatchers("/user/check-email").permitAll()
                 .pathMatchers("/user/check-cellphone").permitAll()
                 .pathMatchers("/item/hyl-img-pages/**").permitAll()
+                .pathMatchers("/mail/send-mail").permitAll() // Todo provisoire -> à securiser pour l'extérieur en ajoutant le token admin (+ idAdmin?) à la requête
                 .anyExchange().authenticated()
                 .and().build();
     }

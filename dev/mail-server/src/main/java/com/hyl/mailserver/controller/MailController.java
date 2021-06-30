@@ -9,7 +9,6 @@ import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.web.bind.annotation.*;
-import org.yaml.snakeyaml.util.ArrayUtils;
 
 import javax.mail.MessagingException;
 import java.time.DateTimeException;
@@ -42,7 +41,8 @@ public class MailController {
     @ResponseBody
     @RequestMapping("/testmail")
     public String testMail() throws MessagingException {
-        return mailService.sendMail();
+       //  return mailService.sendMail();
+        return null;
     }
 
     @PostMapping("/new-password")
@@ -125,5 +125,34 @@ public class MailController {
 
        mailService.sendLoanCallBack(email, data.optString("civility"), data.optString("surname"),
                 data.optString("name"), startDate, itemName, subItemRef, beneficiary, urlImages);
+    }
+
+    @PostMapping(value = "/send-mail")
+    public void sendMail(@RequestBody(required = false) String body) {
+        JSONObject data;
+        try {
+            data = new JSONObject(body);
+        } catch (JSONException | NullPointerException e) {
+            throw new CustomBadRequestException("Le format JSON du corps de la requête est incorrect.");
+        }
+
+        String destinary = data.optString("destinary");
+        String subject = data.optString("subject");
+        String content = data.optString("content");
+        String encoding = data.optString("encoding");
+        boolean html = data.optBoolean("html", true);
+
+        if (destinary.isBlank())
+            throw new CustomBadRequestException("L'adresse email est vide");
+        else if (!destinary.matches("^[a-z0-9._-]{3,99}@[a-z0-9._-]{3,99}.[a-z]{2,}$"))
+            throw new CustomBadRequestException("Le format de l'adresse email est incorrect");
+        if (subject.isBlank())
+            subject = "Hyl - Courriel";
+        if (content.isBlank())
+            content = "Ce courriel vous a été envoyé par HYL.";
+        if (encoding.isBlank())
+            encoding = "utf-8";
+
+        mailService.sendMail(destinary, subject, content, encoding, html);
     }
 }

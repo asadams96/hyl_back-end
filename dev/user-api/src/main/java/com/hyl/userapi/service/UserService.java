@@ -11,6 +11,7 @@ import io.micrometer.shaded.org.pcollections.HashPMap;
 import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -37,7 +38,8 @@ public class UserService {
     private final MailProxy mailProxy;
 
     // ********************************************************* Constructor
-    public UserService(UserDao userDao, PBKDF2Encoder passwordEncoder, HttpSession httpSession, EmailService emailService, MailProxy mailProxy) {
+    @Autowired
+    public UserService(UserDao userDao, PBKDF2Encoder passwordEncoder, HttpSession httpSession, MailProxy mailProxy) {
         this.userDao = userDao;
         this.passwordEncoder = passwordEncoder;
         this.httpSession = httpSession;

@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -57,29 +56,17 @@ public class MailService {
 
 
     //************************************************** METHODES
-    public String sendMail() throws MessagingException {
-
+    public void sendMail(String destinary, String subject, String content, String encoding, boolean html) {
         MimeMessage message = emailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, "utf-8");
-
-        String htmlMsg = "<h3>Voici un titre h3</h3>"
-                +"<p>Voici un paragraphe pour un <b>test</b></p>"
-                +"<img src='http://www.apache.org/images/asf_logo_wide.gif'>";
-
-        helper.setText(htmlMsg, true);
-
-        FileSystemResource file1 = new FileSystemResource(new File(localUrl+"user1/item3/sub4/img-7.jpg"));
-        FileSystemResource file2 = new FileSystemResource(new File(localUrl+"user1/item3/sub4/img-8.jpg"));
-        helper.addAttachment(file1.getFilename() != null ? file1.getFilename() : "file1", file1);
-        helper.addAttachment(file2.getFilename() != null ? file2.getFilename() : "file2", file2);
-
-        helper.setTo(recipient);
-        helper.setSubject("Email de test avec photos");
-
-
-        this.emailSender.send(message);
-
-        return "Email envoyé!";
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, encoding);
+            helper.setTo(destinary);
+            helper.setSubject(subject);
+            helper.setText(content, html);
+            this.emailSender.send(message);
+        } catch (MessagingException e) {
+            throw new CustomInternalServerErrorException(e.getMessage());
+        }
     }
 
 
