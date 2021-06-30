@@ -23,6 +23,9 @@ public class RouteConfig {
                 .route(r -> r.path("/loan/**")
                         .uri("lb://loan-api")
                         .id("loan-api"))
+                .route(r -> r.path("/mail/**")
+                        .uri("lb://mail-server")
+                        .id("mail-server"))
                 .build();
     }
 }
