@@ -7,11 +7,13 @@ import com.hyl.userapi.exception.CustomNotFoundException;
 import com.hyl.userapi.exception.CustomUnauthorizedException;
 import com.hyl.userapi.model.User;
 import com.hyl.userapi.proxy.MailProxy;
+import com.sun.net.httpserver.HttpsParameters;
 import io.micrometer.shaded.org.pcollections.HashPMap;
 import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -68,12 +70,12 @@ public class UserService {
         httpSession.removeAttribute("user"+idUser);
     }
 
-    public void forgotPasswordUser(String email) {
+    public void forgotPasswordUser(String email, String token) {
         User user = this.getUserByEmail(email);
         String password = generatePassword();
         user.setPassword(passwordEncoder.encode(password));
         userDao.save(user);
-        this.sendNewPasswordWithMailProxy(user, password);
+        this.sendNewPasswordWithMailProxy(user, password, token);
     }
 
     public Boolean checkAtomicEmail(String email) {
@@ -164,7 +166,7 @@ public class UserService {
         return  pwdChars.stream().collect(StringBuilder::new, StringBuilder::append, StringBuilder::append).toString();
     }
 
-    private void sendNewPasswordWithMailProxy(User user, String password) {
+    private void sendNewPasswordWithMailProxy(User user, String password, String token) {
         String subject = "[HYL] Réintialisation du mot de passe";
         String content = "<p>Bonjour " + defineCivility(user.getCivility()) + " "
                 + user.getSurname() + " " + user.getName() + ",</p>"
@@ -173,14 +175,17 @@ public class UserService {
                 + "<strong>" + password + "</strong></p>"
                 + "<p>Merci de nous faire confiance et d'utiliser <strong>HYL</strong>.</p>";
 
-        HashMap<String, String> hashMap = new HashMap<>();
-        hashMap.put("destinary", user.getEmail());
-        hashMap.put("subject", subject);
-        hashMap.put("content", content);
-        hashMap.put("encoding", "utf-8");
-        hashMap.put("html", "true");
+        HashMap<String, String> body = new HashMap<>();
+        body.put("destinary", user.getEmail());
+        body.put("subject", subject);
+        body.put("content", content);
+        body.put("encoding", "utf-8");
+        body.put("html", "true");
 
-        mailProxy.sendMail(hashMap);
+        HashMap<String, String> header = new HashMap<>();
+        header.put(HttpHeaders.AUTHORIZATION, token);
+
+        mailProxy.sendMail(header, body);
     }
 
     private String defineCivility(String civility) {

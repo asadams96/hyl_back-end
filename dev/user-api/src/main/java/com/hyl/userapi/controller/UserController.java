@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.springframework.http.HttpHeaders;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -71,14 +72,14 @@ public class UserController {
     }
 
     @PostMapping(path = "/forgot-password")
-    public void forgotPassword (@RequestBody String body) {
+    public void forgotPassword (@RequestBody String body, @Autowired HttpServletRequest request) {
         JSONObject data;
         try {
             data = new JSONObject(body);
         } catch (JSONException e) {
             throw new CustomBadRequestException("Le format JSON du corps de la requête est incorrect.");
         }
-        userService.forgotPasswordUser(data.optString("email"));
+        userService.forgotPasswordUser(data.optString("email"), extractJWTFromHeader(request));
     }
 
 
@@ -101,5 +102,13 @@ public class UserController {
         } catch (NumberFormatException e) {
             throw new CustomBadRequestException("L'id de l'utilisateur doit être un nombre.");
         }
+    }
+
+    public String extractJWTFromHeader (HttpServletRequest request) {
+        String token = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (token == null || token.isBlank()) {
+            throw new CustomBadRequestException("Aucun token n'est spécifié dans le header 'AUTHORIZATION' de la requête.");
+        }
+        return token;
     }
 }

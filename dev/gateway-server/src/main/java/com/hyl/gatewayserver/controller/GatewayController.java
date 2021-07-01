@@ -18,13 +18,13 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import reactor.core.publisher.Mono;
 
 @RestController
-public class AuthenticationREST {
+public class GatewayController {
 
     private final JWTUtil jwtUtil;
     private final UserService userService;
 
     @Autowired
-    public AuthenticationREST(JWTUtil jwtUtil, UserService userService) {
+    public GatewayController(JWTUtil jwtUtil, UserService userService) {
         this.jwtUtil = jwtUtil;
         this.userService = userService;
     }
@@ -56,7 +56,12 @@ public class AuthenticationREST {
                       .map(user -> ResponseEntity.ok(new AuthResponse(jwtUtil.generateToken(user), user.getId()))));
   }
 
-  
+    @PreAuthorize("!(hasRole('USER') or hasRole('ADMIN'))")
+    @RequestMapping(value = "/forgot-password", method = RequestMethod.POST)
+    public Mono<ResponseEntity<?>> forgotPassword(@RequestBody String email) {
+        return userService.doForgotPassword(email).map(ResponseEntity::ok);
+    }
+
     @ExceptionHandler({WebClientResponseException.class})
     public ResponseEntity<?> handleException(WebClientResponseException exception) {
         int status = exception.getRawStatusCode();

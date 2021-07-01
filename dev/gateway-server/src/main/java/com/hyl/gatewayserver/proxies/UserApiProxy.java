@@ -6,6 +6,7 @@ import com.hyl.gatewayserver.model.User;
 import com.hyl.gatewayserver.utils.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -78,5 +79,19 @@ public class UserApiProxy {
                 .retrieve()
                 .onStatus(HttpStatus::isError, ClientResponse::createException)
                 .bodyToMono(String.class);
+    }
+
+    public Mono<Void> forgotPassword(User admin, String email) {
+        String url = UriComponentsBuilder.fromPath("/forgot-password")
+                .build()
+                .toString();
+
+        return webClient.post()
+                .uri(url)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer "+jwtUtil.generateToken(admin))
+                .bodyValue(email)
+                .retrieve()
+                .onStatus(HttpStatus::isError, ClientResponse::createException)
+                .bodyToMono(Void.class);
     }
 }

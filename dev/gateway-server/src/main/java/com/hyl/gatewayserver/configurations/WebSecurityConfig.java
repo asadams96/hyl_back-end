@@ -44,11 +44,10 @@ public class WebSecurityConfig {
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
                 .pathMatchers("/signin").permitAll()
                 .pathMatchers("/signup").permitAll()
-                .pathMatchers("/user/forgot-password").permitAll()
+                .pathMatchers("/forgot-password").permitAll()
                 .pathMatchers("/user/check-email").permitAll()
                 .pathMatchers("/user/check-cellphone").permitAll()
                 .pathMatchers("/item/hyl-img-pages/**").permitAll()
-                .pathMatchers("/mail/send-mail").permitAll() // Todo provisoire -> à securiser pour l'extérieur en ajoutant le token admin (+ idAdmin?) à la requête
                 .anyExchange().authenticated()
                 .and().build();
     }

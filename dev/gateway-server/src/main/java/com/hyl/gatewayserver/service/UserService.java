@@ -64,4 +64,8 @@ public class UserService {
     public Mono<String> doGetIdByEmail(String email) {
         return userApiProxy.getIdByEmail(admin, email);
     }
+
+    public Mono<Void> doForgotPassword(String email) {
+        return userApiProxy.forgotPassword (admin, email);
+    }
 }
