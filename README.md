@@ -12,6 +12,7 @@ Dépôt contenant le _code_ _source_ des différents modules liés à la partie 
 ## Hébergement des configurations
 
 https://github.com/asadams96/hyl_config-repo
+_Si_ _le_ _dépôt_ _est_ _en_ _privé_ _,_ _me_ _contacter_ _(asadams89@gmail.com)_
 
 
 ## Description
@@ -65,6 +66,7 @@ Déployez avec la commande _java_ _-jar_ _chemin_du_fichier/target/nom_du_module
 * le serveur d'enregistrement _discovery-server_
 * la passerelle gateway-server_
 * les différentes instances des _microservices_ en configurant leur port avec _-Dserver.port=XXXX_ à la suite de la commande ( _utilisateur(conseillé:9000)_ , _prêt(conseillé:9100)_ , _objet(conseillé:9200)_ )
+* le serveur courriel _mail-server_ en configurant son port avec _-Dserver.port=XXXX_ à la suite de la commande _(conseillé:9300)_
 * le serveur de gestion de l'application _admin-server_
 
 #### Vérification du déploiement
