@@ -27,18 +27,19 @@ public class MailService {
 
 
     //************************************************** PARAMS
-    private static String localUrl;
+    @Value("${hyl.url.localstorage}")
+    private String localUrl;
 
 
-    //************************************************** BEAN
+    //************************************************** BEANS
     private final JavaMailSender emailSender;
 
 
     //************************************************** SETTERS
-    @Value("${hyl.url.localstorage}")
-    public void setLocalUrl(String localUrl) {
+
+   /* public void setLocalUrl(String localUrl) {
         MailService.localUrl = localUrl;
-    }
+    }*/
 
 
     //************************************************** CONSTRUCTOR
