@@ -11,8 +11,9 @@ Dépôt contenant le _code_ _source_ des différents modules liés à la partie 
 
 ## Hébergement des configurations
 
-https://github.com/asadams96/hyl_config-repo
-_Si_ _le_ _dépôt_ _est_ _en_ _privé_ _,_ _me_ _contacter_ _(asadams89@gmail.com)_
+https://github.com/asadams96/hyl_config-repo  
+_Si_ _le_ _dépôt_ _est_ _en_ _privé_ _,_ _me_ _contacter_ _(asadams89@gmail.com)_  
+Dossier déprécié : attach/configurations
 
 
 ## Description
