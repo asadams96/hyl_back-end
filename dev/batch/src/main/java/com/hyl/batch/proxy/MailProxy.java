@@ -14,5 +14,5 @@ public interface MailProxy {
 
     @PostMapping(value = "/send-mail")
     void sendMail(@RequestHeader HashMap<String, String> header,
-                  @RequestBody HashMap<String, String> body);
+                  @RequestBody HashMap<String, Object> body);
 }
