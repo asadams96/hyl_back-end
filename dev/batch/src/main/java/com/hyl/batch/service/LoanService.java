@@ -2,6 +2,8 @@ package com.hyl.batch.service;
 
 import com.hyl.batch.dao.LoanDao;
 import com.hyl.batch.model.Loan;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,15 +14,24 @@ import java.util.*;
 @Transactional
 public class LoanService {
 
-    private static LoanDao loanDao;
+    //****************************************** LOGGER
+    private final Logger logger = LoggerFactory.getLogger(LoanService.class);
 
+    //****************************************** BEANS
+    private final LoanDao loanDao;
+    private final ItemService itemService;
+    private final UserService userService;
+
+    //****************************************** CONSTRUCTOR
     @Autowired
-    public LoanService(LoanDao loanDao) {
-        LoanService.loanDao = loanDao;
+    public LoanService(LoanDao loanDao, ItemService itemService, UserService userService) {
+        this.loanDao = loanDao;
+        this.itemService = itemService;
+        this.userService = userService;
     }
 
-
-    public static List<Loan> getLoansToCallBack() {
+    //****************************************** METHODES
+    public List<Loan> getLoansToCallBack() {
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Europe/Copenhagen"));
 
         Date intervalMin = new GregorianCalendar( cal.get(Calendar.YEAR), cal.get(Calendar.MONTH),
@@ -41,7 +52,7 @@ public class LoanService {
         return loans;
     }
 
-    private static Loan buildCompletelyLoan(Loan loan) {
+    private Loan buildCompletelyLoan(Loan loan) {
 
         if (loan == null || loan.getIdOwner() == null || loan.getIdOwner() == 0L
                     || loan.getReference() == null || loan.getReference().isBlank()) {
@@ -49,8 +60,8 @@ public class LoanService {
             throw new RuntimeException("Une erreur s'est produite");
 
         } else {
-            loan.setUser(UserService.getUserById(loan.getIdOwner()));
-            loan.setSubItem(ItemService.getSubItemByReference(loan.getReference()));
+            loan.setUser(userService.getUserById(loan.getIdOwner()));
+            loan.setSubItem(itemService.getSubItemByReference(loan.getReference()));
             return loan;
         }
     }

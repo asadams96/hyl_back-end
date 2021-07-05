@@ -5,6 +5,8 @@ import com.hyl.batch.model.Picture;
 import com.hyl.batch.model.SubItem;
 import com.hyl.batch.model.User;
 import com.hyl.batch.proxy.MailProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -17,16 +19,20 @@ import java.util.*;
 @Service
 public class MailService {
 
-    private static MailProxy mailProxy;
+    //****************************************** LOGGER
+    private final Logger logger = LoggerFactory.getLogger(MailService.class);
 
+    //****************************************** BEANS
+    private final MailProxy mailProxy;
 
+    //****************************************** CONSTRUCTOR
     @Autowired
     public MailService(MailProxy mailProxy) {
-        MailService.mailProxy = mailProxy;
+        this.mailProxy = mailProxy;
     }
 
-
-    public static void sendCallBack (Loan loan,  HashMap<String,String> signInAdminMap) {
+    //****************************************** METHODES
+    public void sendCallBack (Loan loan,  HashMap<String,String> signInAdminMap) {
 
         User user = loan.getUser();
         SubItem subItem = loan.getSubItem();
@@ -54,12 +60,12 @@ public class MailService {
         body.put("html", "true");
 
         HashMap<String, String> header = new HashMap<>();
-        header.put(HttpHeaders.AUTHORIZATION, "Bearer "+MailService.extractJWT(signInAdminMap));
+        header.put(HttpHeaders.AUTHORIZATION, "Bearer "+this.extractJWT(signInAdminMap));
 
         mailProxy.sendMail(header, body);
     }
 
-    private static String extractJWT (HashMap<String,String> signInAdminMap) {
+    private String extractJWT (HashMap<String,String> signInAdminMap) {
         String token = signInAdminMap.getOrDefault("token", null);
         if (token == null || token.isBlank()) {
             throw new RuntimeException("Aucun token n'est spécifié.");
@@ -68,7 +74,7 @@ public class MailService {
         }
     }
 
-    private static  List<Hashtable<String,String>> formatUrlImages (List<Picture> pictures) {
+    private List<Hashtable<String,String>> formatUrlImages (List<Picture> pictures) {
         List<Hashtable<String,String>> urlImages = null;
         if(pictures != null && !pictures.isEmpty()) {
             urlImages = new ArrayList<>();
@@ -87,7 +93,7 @@ public class MailService {
         return urlImages;
     }
 
-    private static String defineCivility(String civility) {
+    private String defineCivility(String civility) {
         if (civility != null && civility.equals("M")) return "M.";
         else if (civility != null && civility.equals("W")) return "Mme";
         else return  "";

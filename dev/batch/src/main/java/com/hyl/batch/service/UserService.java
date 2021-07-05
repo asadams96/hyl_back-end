@@ -17,26 +17,29 @@ import java.util.Optional;
 @Transactional
 public class UserService {
 
+    //****************************************** LOGGER
     private final Logger logger = LoggerFactory.getLogger(UserService.class);
 
+    //****************************************** PARAMS
     @Value("${hyl.admin.username}")
     private String username;
 
     @Value("${hyl.admin.password}")
     private String password;
 
-    private static UserDao userDao;
-
+    //****************************************** BEANS
+    private final UserDao userDao;
     private final GatewayProxy gatewayProxy;
 
+    //****************************************** CONSTRUCTOR
     @Autowired
     public UserService(UserDao userDao, GatewayProxy gatewayProxy) {
-        UserService.userDao = userDao;
+        this.userDao = userDao;
         this.gatewayProxy = gatewayProxy;
     }
 
-
-    public static User getUserById(long idUser) {
+    //****************************************** METHODES
+    public User getUserById(long idUser) {
         Optional<User> optUser = userDao.findById(idUser);
         if (optUser.isPresent()) return optUser.get();
         else throw new RuntimeException("Utilisateur introuvable");
