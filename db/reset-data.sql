@@ -19,3 +19,12 @@ ALTER SEQUENCE item.item_id_item_seq RESTART WITH 1;
 
 DELETE FROM item.category WHERE id_category > 0;
 ALTER SEQUENCE item.category_id_category_seq RESTART WITH 1;
+
+DELETE FROM memo.memo WHERE id_memo > 0;
+ALTER SEQUENCE memo.memo_id_memo_seq RESTART WITH 1;
+
+DELETE FROM memo.reminder_by_date WHERE id_reminder_by_date > 0;
+ALTER SEQUENCE memo.reminder_by_date_id_reminder_by_date_seq RESTART WITH 1;
+
+DELETE FROM memo.reminder_by_day WHERE id_reminder_by_day > 0;
+ALTER SEQUENCE memo.reminder_by_day_id_reminder_by_day_seq RESTART WITH 1;

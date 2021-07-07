@@ -1,6 +1,6 @@
 /* --------------------------------------------------- USER_SCHEMA ---------------------------------------------------*/
 INSERT INTO usager.usager (pseudo, email, password, surname, name, civility, cellphone) /*password not encrypted = 'password' */
-VALUES ('asadams', 'asadams89@gmail.com', 'hEwlcpqmhfzKNihzo8+hi1OQ/Ws3DZkdQfieG/rrDBRJ0zoFR2u4C/DMyIBLC2CrVycvtJGFjaVr9RHI0dj3Xg==', 'De Abreu', 'Ayrton', 'M', '+33602160808');
+VALUES ('asadams', 'asadams89@gmail.com', 'hEwlcpqmhfzKNihzo8+hi1OQ/Ws3DZkdQfieG/rrDBRJ0zoFR2u4C/DMyIBLC2CrVycvtJGFjaVr9RHI0dj3Xg==', 'de Abreu Miranda', 'Ayrton', 'M', '+33602160808');
 
 
 /* --------------------------------------------------- LOAN_SCHEMA ---------------------------------------------------*/
@@ -67,3 +67,26 @@ VALUES
 	(NOW() - INTERVAL '4 day', 'Rayure de 1.2cm après que j''ai fais tomber le DVD.', '2', null),
 	(NOW() - INTERVAL '4 day', 'Page 19 avec une trace de café de la taille d''une pièce de 2€ (ma faute).', '3', null),
 	(NOW() - INTERVAL '4 day', 'Manque la page 5 (préface)', '4', null);
+	
+	
+/* --------------------------------------------------- LOAN_SCHEMA ---------------------------------------------------*/
+INSERT INTO
+	memo.memo (title, content, last_modif, id_usager)
+VALUES
+	('Sortir les poubelles', 'Le mardi ce sont les poubelles jaunes, le jeudi ce sont les poubelles vertes', NOW() - INTERVAL '3 day', 1),
+	('Rendez-vous chez le médecin', 'Le docteur Dupont doit me faire un fond de l''oeil, ramener le colyre', NOW() - INTERVAL '2 day', 1),
+	('Rapporter Ruy Blas', 'Ramener Ruy Blas à la bibliothèque Saint-Hilaire', NOW() - INTERVAL '1 day', 1),
+	('Rembourser Jean', 'Rendre les 50€ que Jean m''prêté lorsque nous déjeunions à la brasserie ''Du cours d''eau''', NOW(), 1);
+	
+
+INSERT INTO
+	memo.reminder_by_day (monday, tuesday, wednesday, thursday, friday, saturday, sunday, id_memo)
+VALUES 
+	(false, true, false, true, false, false, false, 1);
+	
+
+INSERT INTO
+	memo.reminder_by_date (reminder_date, id_memo)
+VALUES
+	(NOW(), 2),
+	(NOW() + INTERVAL '1 day', 3);
