@@ -26,6 +26,9 @@ public class RouteConfig {
                 .route(r -> r.path("/mail/**")
                         .uri("lb://mail-server")
                         .id("mail-server"))
+                .route(r -> r.path("/memo/**")
+                        .uri("lb://memo-api")
+                        .id("memo-api"))
                 .build();
     }
 }
