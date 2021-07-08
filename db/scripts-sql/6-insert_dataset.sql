@@ -69,7 +69,7 @@ VALUES
 	(NOW() - INTERVAL '4 day', 'Manque la page 5 (préface)', '4', null);
 	
 	
-/* --------------------------------------------------- LOAN_SCHEMA ---------------------------------------------------*/
+/* --------------------------------------------------- MEMO_SCHEMA ---------------------------------------------------*/
 INSERT INTO
 	memo.memo (title, content, last_modif, id_usager)
 VALUES
