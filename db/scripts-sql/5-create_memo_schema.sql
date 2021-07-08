@@ -47,7 +47,7 @@ CREATE TABLE memo.reminder_by_day (
 
 ALTER SEQUENCE memo.reminder_by_day_id_reminder_by_day_seq OWNED BY memo.reminder_by_day.id_reminder_by_day;
 
-ALTER TABLE memo.reminder_by_day ADD CONSTRAINT memo_reminder_fk
+ALTER TABLE memo.reminder_by_day ADD CONSTRAINT memo_reminder_by_day_fk
 FOREIGN KEY (id_memo)
 REFERENCES memo.memo (id_memo)
 ON DELETE NO ACTION
