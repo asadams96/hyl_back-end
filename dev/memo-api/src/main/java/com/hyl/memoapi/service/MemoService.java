@@ -28,8 +28,8 @@ public class MemoService {
 
 
     //************************************************ METHODES
-    public List<Memo> doGetMemosTest() {
-        return memoDao.findAllByIdUser(1);
+    public List<Memo> doGetMemosByIdUser(Long idUser) {
+        return memoDao.findAllByIdUser(idUser);
     }
 
 }

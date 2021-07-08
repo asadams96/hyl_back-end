@@ -32,7 +32,7 @@ public class Memo {
     @OneToOne(targetEntity = ReminderByDay.class, mappedBy = "memo", fetch = FetchType.LAZY)
     private ReminderByDay reminderByDay;
 
-    @OneToMany(targetEntity = ReminderByDate.class, mappedBy = "memo", fetch = FetchType.LAZY)
+    @OneToMany(targetEntity = ReminderByDate.class, mappedBy = "memo", fetch = FetchType.EAGER)
     private List<ReminderByDate> reminderByDate;
 
     @Column(name = "id_usager")

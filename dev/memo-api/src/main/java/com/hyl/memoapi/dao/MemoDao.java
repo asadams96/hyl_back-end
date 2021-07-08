@@ -8,5 +8,5 @@ import java.util.List;
 
 @RepositoryRestResource(exported = false)
 public interface MemoDao extends JpaRepository<Memo, Long> {
-    List<Memo> findAllByIdUser(long idUser);
+    List<Memo> findAllByIdUser(Long idUser);
 }
