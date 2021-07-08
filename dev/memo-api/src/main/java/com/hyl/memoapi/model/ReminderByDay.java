@@ -44,4 +44,19 @@ public class ReminderByDay {
     @JoinColumn(name = "id_memo")
     @JsonIgnore
     private Memo memo;
+
+    @Override
+    public String toString() {
+        return "ReminderByDay{" +
+                "id=" + id +
+                ", monday=" + monday +
+                ", tuesday=" + tuesday +
+                ", wednesday=" + wednesday +
+                ", thursday=" + thursday +
+                ", friday=" + friday +
+                ", saturday=" + saturday +
+                ", sunday=" + sunday +
+                ", idMemo=" + memo.getId() +
+                '}';
+    }
 }

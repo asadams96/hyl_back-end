@@ -30,13 +30,24 @@ public class Memo {
     private String content;
 
     @OneToOne(targetEntity = ReminderByDay.class, mappedBy = "memo", fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_reminder_by_day")
     private ReminderByDay reminderByDay;
 
-    @OneToMany(targetEntity = ReminderByDate.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_reminder_by_date")
+    @OneToMany(targetEntity = ReminderByDate.class, mappedBy = "memo", fetch = FetchType.LAZY)
     private List<ReminderByDate> reminderByDate;
 
     @Column(name = "id_usager")
     private Long idUser;
+
+    @Override
+    public String toString() {
+        return "Memo{" +
+                "id=" + id +
+                ", lastModif=" + lastModif +
+                ", title='" + title + "'" +
+                ", content='" + content + "'" +
+                (reminderByDay != null ? ", reminderByDay =" + reminderByDay : "") +
+                (reminderByDate != null && !reminderByDate.isEmpty() ? ", reminderByDate=" + reminderByDate : "") +
+                ", idUser=" + idUser +
+                '}';
+    }
 }

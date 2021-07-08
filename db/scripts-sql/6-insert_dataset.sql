@@ -89,4 +89,5 @@ INSERT INTO
 	memo.reminder_by_date (reminder_date, id_memo)
 VALUES
 	(NOW(), 2),
-	(NOW() + INTERVAL '1 day', 3);
+	(NOW() + INTERVAL '1 day', 3),
+	(NOW() + INTERVAL '3 day', 3);

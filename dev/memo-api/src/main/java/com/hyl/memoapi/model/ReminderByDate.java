@@ -27,4 +27,13 @@ public class ReminderByDate {
     @JoinColumn(name = "id_memo")
     @JsonIgnore
     private Memo memo;
+
+    @Override
+    public String toString() {
+        return "ReminderByDate{" +
+                "id=" + id +
+                ", reminderDate=" + reminderDate +
+                ", idMemo=" + memo.getId() +
+                '}';
+    }
 }
